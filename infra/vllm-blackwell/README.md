@@ -44,6 +44,8 @@ supports it. FA3 has detection / kernel bugs on sm_120 (vLLM issues
 [#36865](https://github.com/vllm-project/vllm/issues/36865) open as of
 May 2026). Always export `VLLM_FLASH_ATTN_VERSION=2` before `vllm serve`.
 
+### Phase 1 — first boot, prove stability
+
 For 32 GB of VRAM with 4–6 concurrent debate agents:
 
 ```bash
@@ -71,6 +73,26 @@ vllm serve Qwen/Qwen3-32B-AWQ \
 
 Drop `--enforce-eager` once the server boots cleanly and you want CUDA-graph
 speedups.
+
+### Phase 2 — add compilation passes for throughput
+
+Once Phase 1 works for a full debate, restart with the NVIDIA-recipe
+compilation passes. **These flags only take effect when `--enforce-eager`
+is OFF** — `--enforce-eager` is roughly equivalent to `-O0` and silently
+disables compilation, so combining the two makes the `pass_config` a
+no-op.
+
+```bash
+vllm serve nvidia/Llama-3.3-70B-Instruct-NVFP4 \
+  --gpu-memory-utilization 0.92 \
+  --max-model-len 8192 \
+  --kv-cache-dtype fp8 \
+  --compilation-config '{"pass_config":{"fuse_allreduce_rms":true,"fuse_attn_quant":true,"eliminate_noops":true}}'
+
+# Or the simpler optimization-level shorthand — full autotuning:
+# vllm serve <model> ... -O3
+# (NOT --compilation-config 3 — that flag expects JSON.)
+```
 
 **Do not add `--attention-backend TRITON_ATTN` blindly.** It is not in
 NVIDIA's recipe, the canonical CLI value for the Triton backend changed
