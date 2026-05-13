@@ -45,14 +45,17 @@ fi
 source "$VENV_DIR/bin/activate"
 python -m pip install --upgrade pip setuptools wheel uv
 
-log "Step 4/6: Install vLLM (attempt 1 — official wheel)"
+log "Step 4/6: Install vLLM (cu128 path — Blackwell needs PyTorch 2.9+ cu128)"
+# uv detects sm_120 + driver and pulls cu128 wheels when --torch-backend=auto.
+# This is the verified working path for RTX 5090 as of May 2026
+# (PyTorch 2.9.0 cu128 + vLLM cu128 wheels).
 set +e
-uv pip install --upgrade vllm
+uv pip install --upgrade vllm --torch-backend=auto
 WHEEL_RC=$?
 set -e
 
 if [ "$WHEEL_RC" -ne 0 ]; then
-  log "Official wheel failed (rc=$WHEEL_RC). Attempt 2 — cu128 nightly index."
+  log "auto-detect failed (rc=$WHEEL_RC). Attempt 2 — explicit cu128 index."
   set +e
   uv pip install --upgrade vllm \
     --extra-index-url https://download.pytorch.org/whl/cu128
@@ -75,9 +78,13 @@ cat <<EOF
 Next:
   1. Save the output above (driver, GPU, VRAM, vLLM version).
   2. Pick a model to serve. For 32GB Blackwell with 4-6 active debate agents:
-       - Qwen3-32B at Q5/Q6 or NVFP4   (recommended starting point)
-       - Llama-3.3 class 32-40B at similar quant
-       - 70B only at Q3/Q4 with paged attention and reduced context
-  3. Start vLLM with --enforce-eager on first boot for Blackwell stability:
-       vllm serve <model-id> --enforce-eager --gpu-memory-utilization 0.90
+       - Qwen3-32B AWQ or Qwen3-32B at NVFP4 (best general starting point)
+       - nvidia/Llama-3.3-70B-Instruct-NVFP4 (NVIDIA's prequantized 70B that
+         fits in 32GB; only Llama 3.3 size that exists — there is no 32B/40B)
+       - 70B Q3/Q4 GGUF via llama.cpp fallback if vLLM 70B is tight
+  3. Flash Attention 3 is broken on Blackwell as of May 2026. Export FA2:
+       export VLLM_FLASH_ATTN_VERSION=2
+  4. Start vLLM with --enforce-eager on first boot for Blackwell stability:
+       VLLM_FLASH_ATTN_VERSION=2 vllm serve <model-id> \\
+         --enforce-eager --gpu-memory-utilization 0.90
 EOF

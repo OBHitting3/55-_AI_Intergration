@@ -38,23 +38,36 @@ checks out the latest release tag, and builds with `TORCH_CUDA_ARCH_LIST=12.0+PT
 
 ## Serving a model
 
-For 32 GB of VRAM with 4–6 concurrent debate agents, start with a 32B class
-model. Boot with `--enforce-eager` the first time to skip CUDA-graph capture
-while Blackwell wheels stabilize:
+**Blackwell footgun**: vLLM defaults to Flash Attention 3 when the GPU
+supports it. FA3 is broken on sm_120 as of May 2026. Always export
+`VLLM_FLASH_ATTN_VERSION=2` before `vllm serve`.
+
+For 32 GB of VRAM with 4–6 concurrent debate agents, two solid starting
+points:
 
 ```bash
 source ~/vllm-env/bin/activate
+export VLLM_FLASH_ATTN_VERSION=2
+
+# Option A: 32B class — most headroom, fastest debate cycles.
 vllm serve Qwen/Qwen3-32B-AWQ \
   --enforce-eager \
   --gpu-memory-utilization 0.90 \
   --max-model-len 16384
+
+# Option B: NVIDIA's prequantized Llama 3.3 70B in NVFP4 — fits in 32 GB,
+# higher reasoning ceiling but tighter context budget.
+vllm serve nvidia/Llama-3.3-70B-Instruct-NVFP4 \
+  --enforce-eager \
+  --gpu-memory-utilization 0.92 \
+  --max-model-len 8192
 ```
 
-Drop `--enforce-eager` once the server is stable and you want CUDA-graph speedups.
+Drop `--enforce-eager` once the server boots cleanly and you want CUDA-graph
+speedups.
 
-70B class models on 32 GB require aggressive Q3/Q4 quants, lower context, and
-will likely not host 10 simultaneous debate agents at usable throughput —
-prefer the 32B path and scale agent count instead.
+Note: Llama 3.3 was released **70B only**. There is no 32B/40B Llama 3.3 —
+if you want a mid-size open model use Qwen3-32B or Mistral-class instead.
 
 ## Knobs
 
