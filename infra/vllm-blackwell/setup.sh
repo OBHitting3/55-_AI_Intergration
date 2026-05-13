@@ -82,9 +82,14 @@ Next:
        - nvidia/Llama-3.3-70B-Instruct-NVFP4 (NVIDIA's prequantized 70B that
          fits in 32GB; only Llama 3.3 size that exists — there is no 32B/40B)
        - 70B Q3/Q4 GGUF via llama.cpp fallback if vLLM 70B is tight
-  3. Flash Attention 3 is broken on Blackwell as of May 2026. Export FA2:
+  3. Flash Attention 3 has bugs on Blackwell sm_120 (vLLM issues #22279,
+     #36865). Export FA2 before serving:
        export VLLM_FLASH_ATTN_VERSION=2
-  4. Start vLLM with --enforce-eager on first boot for Blackwell stability:
-       VLLM_FLASH_ATTN_VERSION=2 vllm serve <model-id> \\
-         --enforce-eager --gpu-memory-utilization 0.90
+  4. Start vLLM with --enforce-eager on first boot (skip CUDA-graph capture):
+       VLLM_FLASH_ATTN_VERSION=2 vllm serve nvidia/Llama-3.3-70B-Instruct-NVFP4 \\
+         --enforce-eager --gpu-memory-utilization 0.92 \\
+         --max-model-len 8192 --kv-cache-dtype fp8
+     Do NOT pass --quantization nvfp4 — that is not a valid flag value.
+     Pre-quantized weights handle quantization; if explicit is needed,
+     the documented value is --quantization modelopt.
 EOF

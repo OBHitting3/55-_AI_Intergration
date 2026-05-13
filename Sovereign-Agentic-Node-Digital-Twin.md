@@ -169,3 +169,7 @@ are inline below.
 | Pixel 10 Pro XL with Tensor G5          | Real. Aug 28 2025. 16 GB RAM. |
 | NVFP4 in vLLM on Blackwell              | Real and active. Prequantized 70Bs available. |
 | Llama 3.3 in 32B/40B sizes              | **False.** 70B only. |
+| vLLM issues #22279, #36865 (FA3 / sm_120) | Real. #22279 closed, #36865 open as of 2026-03-12. |
+| `nvidia/Llama-3.3-70B-Instruct-NVFP4`   | Real HF model. |
+| `--quantization nvfp4` flag value       | **False.** Not valid. NVIDIA recipe omits the flag entirely; if explicit, use `--quantization modelopt`. |
+| `--attention-backend TRITON_ATTN`       | **Unverified.** Triton backend exists, but the canonical CLI value changed in vLLM 0.11+ and is not in NVIDIA's recipe. Try without it first. |

@@ -39,32 +39,44 @@ checks out the latest release tag, and builds with `TORCH_CUDA_ARCH_LIST=12.0+PT
 ## Serving a model
 
 **Blackwell footgun**: vLLM defaults to Flash Attention 3 when the GPU
-supports it. FA3 is broken on sm_120 as of May 2026. Always export
-`VLLM_FLASH_ATTN_VERSION=2` before `vllm serve`.
+supports it. FA3 has detection / kernel bugs on sm_120 (vLLM issues
+[#22279](https://github.com/vllm-project/vllm/issues/22279) closed,
+[#36865](https://github.com/vllm-project/vllm/issues/36865) open as of
+May 2026). Always export `VLLM_FLASH_ATTN_VERSION=2` before `vllm serve`.
 
-For 32 GB of VRAM with 4–6 concurrent debate agents, two solid starting
-points:
+For 32 GB of VRAM with 4–6 concurrent debate agents:
 
 ```bash
 source ~/vllm-env/bin/activate
 export VLLM_FLASH_ATTN_VERSION=2
 
-# Option A: 32B class — most headroom, fastest debate cycles.
+# Option A: NVIDIA's prequantized Llama 3.3 70B in NVFP4.
+# Per NVIDIA's vLLM recipe, prequantized weights handle quantization —
+# do not pass --quantization unless vLLM fails to auto-detect, in which
+# case use --quantization modelopt (NOT --quantization nvfp4, which is
+# not a valid flag value).
+vllm serve nvidia/Llama-3.3-70B-Instruct-NVFP4 \
+  --enforce-eager \
+  --gpu-memory-utilization 0.92 \
+  --max-model-len 8192 \
+  --kv-cache-dtype fp8
+
+# Option B: Qwen3-32B AWQ — faster boot, more context headroom, lower
+# reasoning ceiling. Good fallback if 70B is OOM or unstable.
 vllm serve Qwen/Qwen3-32B-AWQ \
   --enforce-eager \
   --gpu-memory-utilization 0.90 \
   --max-model-len 16384
-
-# Option B: NVIDIA's prequantized Llama 3.3 70B in NVFP4 — fits in 32 GB,
-# higher reasoning ceiling but tighter context budget.
-vllm serve nvidia/Llama-3.3-70B-Instruct-NVFP4 \
-  --enforce-eager \
-  --gpu-memory-utilization 0.92 \
-  --max-model-len 8192
 ```
 
 Drop `--enforce-eager` once the server boots cleanly and you want CUDA-graph
 speedups.
+
+**Do not add `--attention-backend TRITON_ATTN` blindly.** It is not in
+NVIDIA's recipe, the canonical CLI value for the Triton backend changed
+in vLLM 0.11+, and an unverified value will just fail to start. Add an
+explicit backend only if FA2 also fails and you've checked
+`vllm serve --help` on your installed version for the current value.
 
 Note: Llama 3.3 was released **70B only**. There is no 32B/40B Llama 3.3 —
 if you want a mid-size open model use Qwen3-32B or Mistral-class instead.
