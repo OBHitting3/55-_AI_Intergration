@@ -14,7 +14,16 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+trap {
+    Write-Host "[SMOKE] FATAL: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host $_.ScriptStackTrace -ForegroundColor Red
+    break
+}
+
+Write-Host "[SMOKE] starting smoke_keyless.ps1"
 $Root = (Resolve-Path "$PSScriptRoot\..\..").Path
+Write-Host "[SMOKE] root=$Root"
 
 $apiHost = '127.0.0.1'
 $apiPort = 8000
@@ -43,7 +52,7 @@ $envelope = @{
         requires_approval = $true
         expires_in_sec = 600
         status         = 'proposed'
-        run_id         = "keyless-$([guid]::NewGuid().Guid.Substring(0,8))"
+        run_id         = "keyless-$([guid]::NewGuid().ToString().Substring(0,8))"
     }
 } | ConvertTo-Json -Depth 6
 
