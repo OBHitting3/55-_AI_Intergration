@@ -30,8 +30,11 @@ if (-not (Test-Path .env)) {
 }
 
 # 4. Start docker stack
+# --env-file pins the .env at the repo root; without it, Compose looks for
+# .env in the same dir as the -f compose file (infra/docker/) and fails the
+# ${QDRANT_API_KEY:?...} interpolation.
 Write-Host "[DOCKER] Bringing up Qdrant + Postgres"
-docker compose -f infra/docker/docker-compose.yml up -d
+docker compose --env-file "$Root\.env" -f "$Root\infra\docker\docker-compose.yml" up -d
 
 Write-Host "==> Install complete."
 Write-Host "Next:"

@@ -3,8 +3,9 @@ $ErrorActionPreference = 'Stop'
 $Root = (Resolve-Path "$PSScriptRoot\..\..").Path
 Set-Location $Root
 
-# Ensure docker stack is up
-docker compose -f infra/docker/docker-compose.yml up -d
+# Ensure docker stack is up. --env-file pins to the repo-root .env so
+# Compose's ${VAR:?...} interpolation resolves correctly.
+docker compose --env-file "$Root\.env" -f "$Root\infra\docker\docker-compose.yml" up -d
 
 # Activate venv and launch API + worker in detached windows
 $activate = "$Root\.venv\Scripts\Activate.ps1"
