@@ -1,19 +1,19 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-21T05:39:02.530Z",
+  "generatedAt": "2026-05-21T17:24:30.764Z",
   "roots": [
     {
       "id": "drive-import",
       "path": "/workspace/drive-import",
       "exists": true,
-      "scannedAt": "2026-05-21T05:39:02.529Z",
+      "scannedAt": "2026-05-21T17:24:30.763Z",
       "clusters": []
     },
     {
       "id": "workspace",
       "path": "/workspace",
       "exists": true,
-      "scannedAt": "2026-05-21T05:39:02.530Z",
+      "scannedAt": "2026-05-21T17:24:30.764Z",
       "clusters": [
         {
           "name": "samples",
@@ -38,10 +38,10 @@
       "status": "active"
     },
     {
-      "name": "Palm Luxe Tycoon",
-      "slug": "palm-luxe-tycoon",
-      "relativePath": "projects/palm-luxe-tycoon",
-      "type": "roblox-game",
+      "name": "Ai Bridge Sync",
+      "slug": "ai-bridge-sync",
+      "relativePath": "projects/ai-bridge-sync",
+      "type": "unknown",
       "source": "catalog",
       "status": "active"
     },
@@ -49,7 +49,7 @@
       "name": "Estate Memory",
       "slug": "estate-memory",
       "relativePath": "projects/estate-memory",
-      "type": "web-app",
+      "type": "unknown",
       "source": "catalog",
       "status": "active"
     },
@@ -62,12 +62,12 @@
       "status": "active"
     },
     {
-      "name": "Inbox",
-      "slug": "_inbox",
-      "relativePath": "projects/_inbox",
-      "type": "unknown",
+      "name": "Palm Luxe Tycoon",
+      "slug": "palm-luxe-tycoon",
+      "relativePath": "projects/palm-luxe-tycoon",
+      "type": "roblox-game",
       "source": "catalog",
-      "status": "triage"
+      "status": "active"
     }
   ],
   "notes": "Populate drive-import/ from Windows USB path, then re-run npm run drive:inventory."

@@ -30,3 +30,13 @@ None detected in `drive-import/` (empty). Re-run `npm run drive:inventory` after
 1. Copy external drive folders into `drive-import/`.
 2. Run `npm run drive:inventory`.
 3. For each new cluster in `docs/drive-inventory.json`, add `projects/<slug>/` with README or move to `projects/_inbox/`.
+
+## KRLX handoff execute (2026-05-21)
+
+- Kit: `null`
+- Synced folders: (none)
+
+## KRLX handoff execute (2026-05-21)
+
+- Kit: `null`
+- Synced folders: (none)

@@ -14,6 +14,16 @@ From the repo root in **PowerShell**:
 
 Writes [`docs/drive-inventory.json`](../docs/drive-inventory.json). Commit that file or copy results into `projects/<slug>/`.
 
+## KRLX handoff (execute instructions)
+
+After copying the kit (or running `import-pc-transfer-kit.ps1`):
+
+```bash
+npm run handoff:execute
+```
+
+Reads `PC_Transfer_Kit/KRLX_CURSOR_HANDOFF.md`, syncs kit folders into `projects/`, updates `projects/index.json`.
+
 ## Option B — Copy into this repo (Cloud Agent)
 
 Copy top-level folders from `D:\` into `drive-import/` (e.g. `drive-import/MyGame/`), then:

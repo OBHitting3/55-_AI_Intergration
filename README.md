@@ -16,9 +16,9 @@ See **[PROJECTS.md](PROJECTS.md)** for all slugs, paths, and run instructions.
 
 ## External drive consolidation (`D:\`)
 
-1. **On Windows:** `.\scripts\scan-drive-windows.ps1` (scans `D:\` by default).
-2. **Or copy** folders from `D:\` into [`drive-import/`](drive-import/), then `npm run drive:inventory`.
-3. Add `projects/<slug>/` per [`docs/consolidation-log.md`](docs/consolidation-log.md) and [`PROJECTS.md`](PROJECTS.md).
+1. **KRLX handoff:** `.\scripts\import-pc-transfer-kit.ps1` (copies `D:\PC_Transfer_Kit`), then `npm run handoff:execute`.
+2. **Or scan in place:** `.\scripts\scan-drive-windows.ps1` (scans `D:\` by default).
+3. **Or copy** folders into [`drive-import/`](drive-import/), then `npm run drive:inventory`.
 
 ## Scripts
 

@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "drive:inventory": "node scripts/drive-inventory.mjs"
+    "drive:inventory": "node scripts/drive-inventory.mjs",
+    "handoff:execute": "node scripts/execute-krlx-handoff.mjs",
+    "handoff:catalog": "node scripts/execute-krlx-handoff.mjs --in-repo-only"
   },
   "dependencies": {
     "next": "14.2.35",
