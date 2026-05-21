@@ -5,7 +5,7 @@
 
 ## Drive access
 
-External Windows/USB volume was not mounted in the cloud VM. Staging area created at `drive-import/` for future copies from `C:\`, `D:\`, or `E:\`.
+External volume is **`D:\`** on the user’s Windows machine. It is not mounted in the cloud VM. Use `scripts/scan-drive-windows.ps1` locally, or copy `D:\` folders into `drive-import/`.
 
 ## Migrations
 

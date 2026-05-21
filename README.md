@@ -14,11 +14,11 @@ npm run dev
 
 See **[PROJECTS.md](PROJECTS.md)** for all slugs, paths, and run instructions.
 
-## External drive consolidation
+## External drive consolidation (`D:\`)
 
-1. Copy your USB / Windows drive into [`drive-import/`](drive-import/).
-2. Run `npm run drive:inventory` → [`docs/drive-inventory.json`](docs/drive-inventory.json).
-3. Add or update entries under `projects/<slug>/` per [`docs/consolidation-log.md`](docs/consolidation-log.md).
+1. **On Windows:** `.\scripts\scan-drive-windows.ps1` (scans `D:\` by default).
+2. **Or copy** folders from `D:\` into [`drive-import/`](drive-import/), then `npm run drive:inventory`.
+3. Add `projects/<slug>/` per [`docs/consolidation-log.md`](docs/consolidation-log.md) and [`PROJECTS.md`](PROJECTS.md).
 
 ## Scripts
 

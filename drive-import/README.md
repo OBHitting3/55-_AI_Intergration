@@ -1,8 +1,26 @@
 # Drive import staging
 
-Copy contents from your external drive here for Cloud Agent inventory scans.
+Your external volume is **`D:\`**. This folder mirrors what you copy from `D:\` into the repo for Cloud Agent scans.
 
-**Windows example paths:** `E:\`, `D:\Backup\`, or `C:\Users\<you>\ExternalDrive\`
+## Option A — Scan `D:\` on your PC (recommended first)
+
+From the repo root in **PowerShell**:
+
+```powershell
+.\scripts\scan-drive-windows.ps1
+# or a subfolder on D:
+.\scripts\scan-drive-windows.ps1 -DriveRoot "D:\"
+```
+
+Writes [`docs/drive-inventory.json`](../docs/drive-inventory.json). Commit that file or copy results into `projects/<slug>/`.
+
+## Option B — Copy into this repo (Cloud Agent)
+
+Copy top-level folders from `D:\` into `drive-import/` (e.g. `drive-import/MyGame/`), then:
+
+```bash
+npm run drive:inventory
+```
 
 ## What to copy
 

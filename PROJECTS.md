@@ -10,9 +10,15 @@ Monorepo layout: each concept lives under [`projects/`](projects/). Root [`src/`
 | Karl Twin | `karl-twin` | active | [`projects/karl-twin/`](projects/karl-twin/) | Approval-gated digital twin agent (LangGraph) |
 | Inbox | `_inbox` | triage | [`projects/_inbox/`](projects/_inbox/) | Unclassified drive imports |
 
-## Drive import
+## Drive import (`D:\`)
 
-Copy external drive contents to [`drive-import/`](drive-import/), then:
+**Windows (scan in place):**
+
+```powershell
+.\scripts\scan-drive-windows.ps1
+```
+
+**Or copy** from `D:\` into [`drive-import/`](drive-import/), then:
 
 ```bash
 npm run drive:inventory
