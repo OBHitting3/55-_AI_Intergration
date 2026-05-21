@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-21T05:39:02.530Z",
+  "roots": [
+    {
+      "id": "drive-import",
+      "path": "/workspace/drive-import",
+      "exists": true,
+      "scannedAt": "2026-05-21T05:39:02.529Z",
+      "clusters": []
+    },
+    {
+      "id": "workspace",
+      "path": "/workspace",
+      "exists": true,
+      "scannedAt": "2026-05-21T05:39:02.530Z",
+      "clusters": [
+        {
+          "name": "samples",
+          "slug": "samples",
+          "relativePath": "samples",
+          "fileCount": 0,
+          "dirCount": 0,
+          "markers": [],
+          "type": "unknown",
+          "duplicateFileHints": []
+        }
+      ]
+    }
+  ],
+  "catalogProjects": [
+    {
+      "name": "AI Bridge Sync",
+      "slug": "ai-bridge-sync",
+      "relativePath": "src",
+      "type": "web-app",
+      "source": "catalog",
+      "status": "active"
+    },
+    {
+      "name": "Palm Luxe Tycoon",
+      "slug": "palm-luxe-tycoon",
+      "relativePath": "projects/palm-luxe-tycoon",
+      "type": "roblox-game",
+      "source": "catalog",
+      "status": "active"
+    },
+    {
+      "name": "Estate Memory",
+      "slug": "estate-memory",
+      "relativePath": "projects/estate-memory",
+      "type": "web-app",
+      "source": "catalog",
+      "status": "active"
+    },
+    {
+      "name": "Karl Twin",
+      "slug": "karl-twin",
+      "relativePath": "projects/karl-twin",
+      "type": "agent-tooling",
+      "source": "catalog",
+      "status": "active"
+    },
+    {
+      "name": "Inbox",
+      "slug": "_inbox",
+      "relativePath": "projects/_inbox",
+      "type": "unknown",
+      "source": "catalog",
+      "status": "triage"
+    }
+  ],
+  "notes": "Populate drive-import/ from Windows USB path, then re-run npm run drive:inventory."
+}
