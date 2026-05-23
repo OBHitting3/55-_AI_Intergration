@@ -1,6 +1,6 @@
 # Iron Forge Studios — AI Bridge Sync (monorepo)
 
-Central workspace for **AI Bridge Sync** and related Iron Forge products. Each idea/concept has its own folder under [`projects/`](projects/).
+**Your single workspace.** All 8 former GitHub repos now live here under [`projects/`](projects/). Start with **[docs/GETTING-STARTED.md](docs/GETTING-STARTED.md)** if repositories felt scattered across Cursor windows.
 
 ## Quick start (dashboard)
 

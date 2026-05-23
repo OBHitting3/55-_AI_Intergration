@@ -1,14 +1,39 @@
 # Iron Forge Studios — Project catalog
 
-Monorepo layout: each concept lives under [`projects/`](projects/). Root [`src/`](src/) is **AI Bridge Sync**.
+**Single monorepo** — open this repository once in Cursor; all former GitHub repos live under [`projects/`](projects/).
 
-| Name | Slug | Status | Path | Description |
-|------|------|--------|------|-------------|
-| AI Bridge Sync | `ai-bridge-sync` | active | [`src/`](src/) | MCP dashboard, config validation, sync & webhooks |
-| Palm Luxe Tycoon | `palm-luxe-tycoon` | active | [`projects/palm-luxe-tycoon/`](projects/palm-luxe-tycoon/) | Roblox unified LC economy |
-| Estate Memory | `estate-memory` | active | [`projects/estate-memory/`](projects/estate-memory/) | Sovereign estate/trust RAG with citations |
-| Karl Twin | `karl-twin` | active | [`projects/karl-twin/`](projects/karl-twin/) | Approval-gated digital twin agent (LangGraph) |
-| Inbox | `_inbox` | triage | [`projects/_inbox/`](projects/_inbox/) | Unclassified drive imports |
+New here? Read **[docs/GETTING-STARTED.md](docs/GETTING-STARTED.md)**.
+
+Root [`src/`](src/) is the **AI Bridge Sync** web dashboard.
+
+## Active (in this repo)
+
+| Name | Slug | Path | Notes |
+|------|------|------|-------|
+| AI Bridge Sync | `ai-bridge-sync` | [`src/`](src/) | MCP dashboard — `npm run dev` |
+| Karl Twin | `karl-twin` | [`projects/karl-twin/`](projects/karl-twin/) | Digital twin agent |
+| Palm Luxe Tycoon | `palm-luxe-tycoon` | [`projects/palm-luxe-tycoon/`](projects/palm-luxe-tycoon/) | Roblox economy |
+| Estate Memory | `estate-memory` | [`projects/estate-memory/`](projects/estate-memory/) | Estate/trust RAG |
+
+## Imported from other GitHub repos (2026-05-23)
+
+| Name | Slug | Path | Original repo |
+|------|------|------|---------------|
+| Gemini Discovers Diamonds | `gemini-discovers-diamonds` | [`projects/gemini-discovers-diamonds/`](projects/gemini-discovers-diamonds/) | OBHitting3/Gemini-discovers-Diamonds |
+| Content Shield | `content-shield` | [`projects/content-shield/`](projects/content-shield/) | OBHitting3/Content_Shield |
+| Iron Forge site | `iron-forge-studios-site` | [`projects/iron-forge-studios-site/`](projects/iron-forge-studios-site/) | OBHitting3/Iron-Forge-Studios |
+| Faceless Shorts | `faceless-shorts` | [`projects/faceless-shorts/`](projects/faceless-shorts/) | OBHitting3/Faceless_Shorts |
+| Joshua 7 | `joshua7` | [`projects/joshua7/`](projects/joshua7/) | OBHitting3/joshua7 |
+| YouTube Autopilot | `yt-autopilot` | [`projects/yt-autopilot/`](projects/yt-autopilot/) | OBHitting3/yt-autopilot |
+| Freelance | `freelance` | [`projects/freelance/`](projects/freelance/) | OBHitting3/FreeLance (was empty) |
+
+Each imported project includes [`ORIGIN.md`](projects/gemini-discovers-diamonds/ORIGIN.md) with the GitHub link.
+
+## Triage
+
+| Name | Slug | Path | Purpose |
+|------|------|------|---------|
+| Inbox | `_inbox` | [`projects/_inbox/`](projects/_inbox/) | Unsorted drive imports |
 
 ## Drive import (`D:\`)
 

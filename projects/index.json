@@ -1,6 +1,7 @@
 {
-  "version": 1,
-  "updatedAt": "2026-05-21T17:24:30.777Z",
+  "version": 2,
+  "updatedAt": "2026-05-23T00:00:00.000Z",
+  "monorepo": "OBHitting3/55-_AI_Intergration",
   "projects": [
     {
       "name": "AI Bridge Sync",
@@ -11,20 +12,12 @@
       "description": "MCP-only LLM context sync dashboard"
     },
     {
-      "name": "Estate Memory",
-      "slug": "estate-memory",
-      "status": "active",
-      "path": "projects/estate-memory",
-      "type": "unknown",
-      "description": "Sovereign RAG for estate, trust, and family-office documents. Cited search with per-query audit logging for attorney wor"
-    },
-    {
       "name": "Karl Twin",
       "slug": "karl-twin",
       "status": "active",
       "path": "projects/karl-twin",
       "type": "agent-tooling",
-      "description": "Sovereign digital twin for Karl. Voice-driven, multi-agent, sandboxed, approval-gated, with persistent memory."
+      "description": "Approval-gated digital twin agent (LangGraph)"
     },
     {
       "name": "Palm Luxe Tycoon",
@@ -32,7 +25,86 @@
       "status": "active",
       "path": "projects/palm-luxe-tycoon",
       "type": "roblox-game",
-      "description": "```"
+      "description": "Roblox unified LC economy"
+    },
+    {
+      "name": "Estate Memory",
+      "slug": "estate-memory",
+      "status": "active",
+      "path": "projects/estate-memory",
+      "type": "rag",
+      "description": "Estate/trust document RAG with citations"
+    },
+    {
+      "name": "Gemini Discovers Diamonds",
+      "slug": "gemini-discovers-diamonds",
+      "status": "imported",
+      "path": "projects/gemini-discovers-diamonds",
+      "type": "roblox-game",
+      "sourceRepo": "OBHitting3/Gemini-discovers-Diamonds",
+      "description": "Palm Springs Paradise Roblox prototype + nested content-shield"
+    },
+    {
+      "name": "Content Shield",
+      "slug": "content-shield",
+      "status": "imported",
+      "path": "projects/content-shield",
+      "type": "python",
+      "sourceRepo": "OBHitting3/Content_Shield",
+      "description": "Joshua 7 validators, LeadLatch, Docker"
+    },
+    {
+      "name": "Iron Forge Studios Site",
+      "slug": "iron-forge-studios-site",
+      "status": "imported",
+      "path": "projects/iron-forge-studios-site",
+      "type": "static-site",
+      "sourceRepo": "OBHitting3/Iron-Forge-Studios",
+      "description": "Marketing / landing static site"
+    },
+    {
+      "name": "Faceless Shorts",
+      "slug": "faceless-shorts",
+      "status": "imported",
+      "path": "projects/faceless-shorts",
+      "type": "python",
+      "sourceRepo": "OBHitting3/Faceless_Shorts",
+      "description": "Short-form video automation workflows"
+    },
+    {
+      "name": "Joshua 7",
+      "slug": "joshua7",
+      "status": "imported",
+      "path": "projects/joshua7",
+      "type": "python",
+      "sourceRepo": "OBHitting3/joshua7",
+      "description": "Pre-publication AI content validation (standalone copy)"
+    },
+    {
+      "name": "YouTube Autopilot",
+      "slug": "yt-autopilot",
+      "status": "imported",
+      "path": "projects/yt-autopilot",
+      "type": "python",
+      "sourceRepo": "OBHitting3/yt-autopilot",
+      "description": "Topic-to-upload YouTube pipeline"
+    },
+    {
+      "name": "Freelance",
+      "slug": "freelance",
+      "status": "placeholder",
+      "path": "projects/freelance",
+      "type": "unknown",
+      "sourceRepo": "OBHitting3/FreeLance",
+      "description": "Empty repo — placeholder for future notes"
+    },
+    {
+      "name": "Inbox",
+      "slug": "_inbox",
+      "status": "triage",
+      "path": "projects/_inbox",
+      "type": "inbox",
+      "description": "Unclassified drive imports"
     }
   ],
   "syncedFromKit": []
