@@ -37,6 +37,9 @@ _BASELINES: dict[str, dict[str, float]] = {
     "memory.write":    {"HI": 6.0, "MC": 2.0, "EC": 2.0},
     "memory.read":     {"HI": 9.0, "MC": 1.0, "EC": 1.0},
     "respond":         {"HI": 9.0, "MC": 1.0, "EC": 1.0},
+    "game.luau.write": {"HI": 2.5, "MC": 4.0, "EC": 3.0},
+    "rojo.build":      {"HI": 4.0, "MC": 3.0, "EC": 2.0},
+    "luau.lint":       {"HI": 7.0, "MC": 2.0, "EC": 1.0},
 }
 
 

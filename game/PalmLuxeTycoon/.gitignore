@@ -1,0 +1,9 @@
+# Rojo build output
+/out/
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+
+# Aftman-installed binaries (local only)
+/.aftman/

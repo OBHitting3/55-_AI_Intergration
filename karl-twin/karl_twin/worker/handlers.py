@@ -68,7 +68,10 @@ def code_execute(payload: dict[str, Any]) -> dict[str, Any]:
     return run_in_sandbox(code=code, timeout_sec=timeout, secret_names=secret_names)
 
 
+from karl_twin.worker.roblox_handlers import HANDLERS as ROBLOX_HANDLERS
+
 HANDLERS = {
     "file.write": file_write,
     "code.execute": code_execute,
+    **ROBLOX_HANDLERS,
 }
