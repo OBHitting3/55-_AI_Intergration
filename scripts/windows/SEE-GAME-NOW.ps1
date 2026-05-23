@@ -51,6 +51,13 @@ if (-not (Test-Path (Join-Path $Root "default.project.json"))) {
     Write-Error "default.project.json not found. Wrong folder?"
 }
 
+# Fix Rojo class conflict (ServerScriptService + init.server.lua)
+$fixProject = Join-Path $PSScriptRoot "default.project.json"
+if (Test-Path $fixProject) {
+    Copy-Item $fixProject (Join-Path $Root "default.project.json") -Force
+    Write-Host "[OK] Applied Rojo-safe default.project.json"
+}
+
 # 4) Optional wally (no required deps in v0.1)
 if ((Get-Command wally -ErrorAction SilentlyContinue) -and (Test-Path (Join-Path $Root "wally.toml"))) {
     wally install 2>$null
