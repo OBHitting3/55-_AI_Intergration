@@ -50,6 +50,11 @@
       "src": "/api/webhooks/airtable",
       "dest": "/api/webhooks/airtable",
       "methods": ["POST"]
+    },
+    {
+      "src": "/api/export/superbullet",
+      "dest": "/api/export/superbullet",
+      "methods": ["GET", "POST"]
     }
   ],
   "functions": {

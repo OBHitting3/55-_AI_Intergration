@@ -5,9 +5,10 @@ import type { BridgeContext } from "@/types/bridge-context";
 
 const DEFAULT_CONTEXT: BridgeContext = {
   globalContext:
-    "Iron Forge Studios AI Bridge Sync — global context placeholder. Edit this via the Global Context editor.",
+    "Palm Springs Paradise (KarLux) — MCM life sim. Pipeline: VS Code → SuperbulletAI → Rojo serve → Studio. Rules: .cursor/rules/roblox-mcm.md. Merge staging/ only after Karl/Eddie approval.",
   targets: [
     { id: "cursor", enabled: true, format: "cursorrules" },
+    { id: "superbullet", enabled: true, format: "project-context" },
     { id: "claude", enabled: true, format: "knowledge-base" },
     { id: "chatgpt", enabled: false, format: "custom-instructions" },
     { id: "gemini", enabled: false, format: "system-prompt" },
