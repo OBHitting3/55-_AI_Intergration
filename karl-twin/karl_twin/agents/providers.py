@@ -18,6 +18,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Optional
 
+import httpx
+
 
 @dataclass
 class ReasoningRequest:
@@ -104,6 +106,95 @@ class ClaudeAgentProvider(ReasoningProvider):
             tokens_in=getattr(resp.usage, "input_tokens", 0) or 0,
             tokens_out=getattr(resp.usage, "output_tokens", 0) or 0,
         )
+
+
+class OllamaProvider(ReasoningProvider):
+    """Local Ollama-backed reasoner.
+
+    Ollama exposes a local HTTP API and can run without paid API keys. The
+    model still only emits JSON/text; all action execution remains behind the
+    approval-gated planner and worker.
+    """
+
+    def __init__(
+        self,
+        *,
+        base_url: Optional[str] = None,
+        model: Optional[str] = None,
+        timeout_sec: Optional[float] = None,
+    ):
+        self.base_url = (base_url or os.environ.get("OLLAMA_BASE_URL") or "http://127.0.0.1:11434").rstrip("/")
+        self.model = model or os.environ.get("OLLAMA_MODEL", "qwen2.5:3b")
+        self.timeout_sec = timeout_sec or float(os.environ.get("OLLAMA_TIMEOUT_SEC", "120"))
+
+    def reason(self, req: ReasoningRequest) -> ReasoningResult:
+        sys_prompt = req.system
+        if req.json_schema is not None:
+            sys_prompt += (
+                "\n\nReturn ONLY one valid JSON object matching this JSON Schema. "
+                "Do not include markdown fences, prose, comments, or extra keys unless "
+                "the schema allows them. Include a top-level 'confidence' field in "
+                "[0.0, 1.0] when the schema includes or expects it. Schema: "
+                + json.dumps(req.json_schema)
+            )
+
+        user_msg = req.user
+        if req.context:
+            user_msg += "\n\nContext:\n" + json.dumps(req.context, default=str)[:4000]
+
+        payload: dict[str, Any] = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": sys_prompt},
+                {"role": "user", "content": user_msg},
+            ],
+            "stream": False,
+        }
+        if req.json_schema is not None:
+            payload["format"] = "json"
+
+        try:
+            with httpx.Client(timeout=self.timeout_sec) as client:
+                resp = client.post(f"{self.base_url}/api/chat", json=payload)
+                resp.raise_for_status()
+                data = resp.json()
+        except httpx.ConnectError as e:
+            raise RuntimeError(
+                f"Ollama is not reachable at {self.base_url}. Start it with `ollama serve` "
+                f"and pull {self.model!r} with `ollama pull {self.model}`."
+            ) from e
+
+        text = str((data.get("message") or {}).get("content") or data.get("response") or "")
+        parsed: Optional[dict[str, Any]] = None
+        confidence = 0.0
+        if req.json_schema is not None:
+            parsed = _safe_parse_json(text)
+            if parsed is not None:
+                try:
+                    confidence = float(parsed.get("confidence", 0.0))
+                except (TypeError, ValueError):
+                    confidence = 0.0
+
+        return ReasoningResult(
+            text=text,
+            parsed=parsed,
+            confidence=max(0.0, min(1.0, confidence)),
+            model=self.model,
+            tokens_in=int(data.get("prompt_eval_count") or 0),
+            tokens_out=int(data.get("eval_count") or 0),
+        )
+
+
+def create_reasoning_provider() -> ReasoningProvider:
+    provider = os.environ.get("KARL_TWIN_PROVIDER", "anthropic").strip().lower()
+    if provider in ("ollama", "local"):
+        return OllamaProvider()
+    if provider in ("anthropic", "claude"):
+        return ClaudeAgentProvider()
+    raise RuntimeError(
+        "Unsupported KARL_TWIN_PROVIDER={!r}. Use 'ollama' for free local LLM "
+        "or 'anthropic' for Claude.".format(provider)
+    )
 
 
 def _safe_parse_json(text: str) -> Optional[dict[str, Any]]:

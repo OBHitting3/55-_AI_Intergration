@@ -29,9 +29,9 @@ from karl_twin.actions.envelope import (
     RiskLevel,
 )
 from karl_twin.agents.providers import (
-    ClaudeAgentProvider,
     ReasoningProvider,
     ReasoningRequest,
+    create_reasoning_provider,
 )
 from karl_twin.api.event_log import EventLog, default_path
 from karl_twin.cac.scorer import score_action
@@ -391,7 +391,7 @@ def route_after_approval(state: TwinState) -> str:
 # -------- builder --------
 
 def build_graph(provider: ReasoningProvider | None = None):
-    provider = provider or ClaudeAgentProvider()
+    provider = provider or create_reasoning_provider()
 
     g: StateGraph = StateGraph(TwinState)
     g.add_node("parse_intent", lambda s: parse_intent(s, provider=provider))
