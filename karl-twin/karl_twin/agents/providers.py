@@ -163,6 +163,13 @@ class OllamaProvider(ReasoningProvider):
                 f"Ollama is not reachable at {self.base_url}. Start it with `ollama serve` "
                 f"and pull {self.model!r} with `ollama pull {self.model}`."
             ) from e
+        except httpx.HTTPStatusError as e:
+            detail = e.response.text[:500] if e.response is not None else ""
+            raise RuntimeError(
+                f"Ollama returned HTTP {e.response.status_code} for model {self.model!r}. "
+                "Check the Ollama server logs and confirm the model can load on this machine. "
+                f"Response: {detail}"
+            ) from e
 
         text = str((data.get("message") or {}).get("content") or data.get("response") or "")
         parsed: Optional[dict[str, Any]] = None

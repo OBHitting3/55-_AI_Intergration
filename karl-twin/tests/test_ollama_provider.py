@@ -1,4 +1,5 @@
 import pytest
+import httpx
 
 from karl_twin.agents.providers import OllamaProvider, ReasoningRequest, create_reasoning_provider
 
@@ -35,6 +36,13 @@ class _FakeClient:
         })
 
 
+class _FailingClient(_FakeClient):
+    def post(self, url, json):
+        request = httpx.Request("POST", url)
+        response = httpx.Response(500, request=request, text='{"error":"load failed"}')
+        raise httpx.HTTPStatusError("server error", request=request, response=response)
+
+
 def test_ollama_provider_requests_json(monkeypatch):
     _FakeClient.requests.clear()
     monkeypatch.setattr("karl_twin.agents.providers.httpx.Client", _FakeClient)
@@ -64,6 +72,19 @@ def test_ollama_provider_requests_json(monkeypatch):
     assert req["json"]["format"] == "json"
     assert req["json"]["stream"] is False
     assert req["json"]["model"] == "qwen-test"
+
+
+def test_ollama_provider_wraps_server_errors(monkeypatch):
+    monkeypatch.setattr("karl_twin.agents.providers.httpx.Client", _FailingClient)
+    provider = OllamaProvider(base_url="http://ollama.local", model="broken-model", timeout_sec=3)
+
+    with pytest.raises(RuntimeError, match="Ollama returned HTTP 500"):
+        provider.reason(ReasoningRequest(
+            system="Summarize.",
+            user="hello",
+            context={},
+            json_schema={"type": "object"},
+        ))
 
 
 def test_create_reasoning_provider_selects_ollama(monkeypatch):
