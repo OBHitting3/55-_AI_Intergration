@@ -84,6 +84,30 @@ Revenue projection (Bass Model): ~1.8M Robux over 6 months at 50k DAU.
 3. `GameInit.server.luau` bootstraps automatically on server start
 4. Run `MonteCarloSim:Run()` in Studio command bar to validate economy
 
+## Roblox Open Cloud Publishing
+
+Publishing automation is wired through `npm run roblox:publish`. It uses
+Roblox Open Cloud's place publishing endpoint and refuses to run until the
+required values are present.
+
+Required local values:
+
+| Name | Where it comes from | Where it goes |
+|------|---------------------|---------------|
+| `ROBLOX_API_KEY` | Roblox Creator Dashboard API key with `universe-places:write` | `.env.local`, Bitwarden, or GitHub Secrets |
+| `ROBLOX_UNIVERSE_ID` | Creator Dashboard experience settings | `.env.local` or GitHub variable |
+| `ROBLOX_PLACE_ID` | Creator Dashboard place settings | `.env.local` or GitHub variable |
+| `ROBLOX_PLACE_FILE` | Built `.rbxl` or `.rbxlx` file path | `.env.local` |
+
+Local setup:
+
+1. Copy `.env.local.example` to `.env.local`.
+2. Fill in `ROBLOX_API_KEY`, `ROBLOX_UNIVERSE_ID`, `ROBLOX_PLACE_ID`, and `ROBLOX_PLACE_FILE`.
+3. Run `npm run roblox:check` to verify the destination without publishing.
+4. Run `npm run roblox:publish` to upload the place file.
+
+Never paste the Roblox API key into chat or commit it to Git.
+
 ## Persistence
 
 - DataStore: `PlayerData` (Universe-scoped)

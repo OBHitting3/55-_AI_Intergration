@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "roblox:check": "node scripts/publish-roblox-place.mjs --check",
+    "roblox:publish": "node scripts/publish-roblox-place.mjs"
   },
   "dependencies": {
     "next": "14.2.35",
