@@ -90,6 +90,20 @@ Expected sequence (also see `tests/test_smoke.py`):
 9. Memory record logged (Qdrant write requires an embedder; v0.1 logs the would-be record).
 10. CLI prints `Done.`
 
+## Free local LLM mode
+
+Karl can use Ollama instead of paid API keys for natural-language planning.
+Install Ollama on the host, pull a local model, and set:
+
+```bash
+KARL_TWIN_PROVIDER=ollama
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_MODEL=qwen2.5:3b
+```
+
+Then start the API and worker as usual. The local model only proposes Action
+Envelopes; execution still goes through the approval UI and worker.
+
 ## Voice mode
 
 ```powershell
