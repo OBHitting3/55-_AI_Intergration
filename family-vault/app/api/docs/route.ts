@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { canAccessVault, getSessionUser } from "@/lib/auth";
 import { appendAudit, listDocs, saveDoc } from "@/lib/storage";
 import { chunkText } from "@/lib/rag";
 import { embedTexts } from "@/lib/ollama";
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
   if (!vault || !title || !text) {
     return NextResponse.json({ error: "vault, title and text are required" }, { status: 400 });
   }
-  if (!user.vaults.includes(vault)) {
+  if (!canAccessVault(user, vault)) {
     return NextResponse.json({ error: "You do not have access to that vault" }, { status: 403 });
   }
 

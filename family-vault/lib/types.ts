@@ -46,4 +46,6 @@ export interface AuditEntry {
   username: string;
   action: string;
   detail: string;
+  prevHash: string;
+  hash: string;
 }

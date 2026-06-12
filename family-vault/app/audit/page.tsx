@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
-import { getAudit } from "@/lib/storage";
+import { getAudit, verifyAudit } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +11,7 @@ export default async function AuditPage() {
   if (user.role !== "owner") redirect("/vault");
 
   const log = await getAudit();
+  const integrity = await verifyAudit();
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6">
@@ -26,6 +27,20 @@ export default async function AuditPage() {
           Back
         </Link>
       </header>
+
+      <div
+        className={`mb-4 rounded-lg border px-4 py-2 text-sm ${
+          integrity.ok
+            ? "border-emerald-700/50 bg-emerald-900/20 text-emerald-300"
+            : "border-red-700/50 bg-red-900/20 text-red-300"
+        }`}
+      >
+        {integrity.ok ? (
+          <>Integrity verified — hash chain intact across {integrity.count} entries. No tampering detected.</>
+        ) : (
+          <>TAMPERING DETECTED — the hash chain breaks at entry #{(integrity.brokenAt ?? 0) + 1}. The log has been altered.</>
+        )}
+      </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-700/60">
         <table className="w-full text-left text-sm">

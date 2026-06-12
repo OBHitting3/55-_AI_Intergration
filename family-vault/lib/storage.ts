@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
 import { AuditEntry, DocRecord, User, VaultId } from "./types";
+import { decryptString, encryptString, sha256 } from "./crypto";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
@@ -12,10 +13,14 @@ async function ensureDir(dir: string) {
   await fs.mkdir(dir, { recursive: true });
 }
 
+// All data files are encrypted at rest (AES-256-GCM). Reads decrypt; writes
+// encrypt. A failed decrypt (tampering or wrong key) throws and is treated as
+// "no data" by readJson callers rather than silently returning plaintext.
 async function readJson<T>(file: string, fallback: T): Promise<T> {
   try {
     const raw = await fs.readFile(file, "utf8");
-    return JSON.parse(raw) as T;
+    const plain = await decryptString(raw);
+    return JSON.parse(plain) as T;
   } catch {
     return fallback;
   }
@@ -23,7 +28,8 @@ async function readJson<T>(file: string, fallback: T): Promise<T> {
 
 async function writeJson(file: string, data: unknown) {
   await ensureDir(path.dirname(file));
-  await fs.writeFile(file, JSON.stringify(data, null, 2), "utf8");
+  const blob = await encryptString(JSON.stringify(data, null, 2));
+  await fs.writeFile(file, blob, "utf8");
 }
 
 export function hashPassword(password: string, salt: string): string {
@@ -66,7 +72,8 @@ export async function init(): Promise<void> {
   // caller (or a build-time prerender) already created the file, we skip seeding
   // entirely — this prevents duplicate seed documents from races.
   try {
-    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), { flag: "wx" });
+    const blob = await encryptString(JSON.stringify(users, null, 2));
+    await fs.writeFile(USERS_FILE, blob, { flag: "wx" });
   } catch {
     initialized = true;
     return;
@@ -141,15 +148,63 @@ async function seedDoc(vault: VaultId, title: string, text: string, userId: stri
   await saveDoc(doc);
 }
 
-export async function appendAudit(entry: Omit<AuditEntry, "id" | "at">): Promise<void> {
+const GENESIS = "GENESIS";
+
+function entryHash(e: Omit<AuditEntry, "hash">): string {
+  // Hash binds this entry to the previous one (prevHash), forming a chain.
+  // Editing or deleting any past entry breaks every hash after it.
+  return sha256(
+    [e.prevHash, e.id, e.at, e.userId, e.username, e.action, e.detail].join("\u0000")
+  );
+}
+
+export async function appendAudit(
+  entry: Omit<AuditEntry, "id" | "at" | "prevHash" | "hash">
+): Promise<void> {
   const log = await readJson<AuditEntry[]>(AUDIT_FILE, []);
-  log.push({ id: crypto.randomUUID(), at: new Date().toISOString(), ...entry });
+  const prevHash = log.length ? log[log.length - 1].hash : GENESIS;
+  const base: Omit<AuditEntry, "hash"> = {
+    id: crypto.randomUUID(),
+    at: new Date().toISOString(),
+    prevHash,
+    ...entry,
+  };
+  const full: AuditEntry = { ...base, hash: entryHash(base) };
+  log.push(full);
   await writeJson(AUDIT_FILE, log);
 }
 
 export async function getAudit(): Promise<AuditEntry[]> {
   const log = await readJson<AuditEntry[]>(AUDIT_FILE, []);
-  return log.sort((a, b) => b.at.localeCompare(a.at));
+  return [...log].sort((a, b) => b.at.localeCompare(a.at));
+}
+
+export interface AuditIntegrity {
+  ok: boolean;
+  count: number;
+  brokenAt: number | null;
+}
+
+// Recomputes the hash chain in stored order to detect any edit/delete/reorder.
+export async function verifyAudit(): Promise<AuditIntegrity> {
+  const log = await readJson<AuditEntry[]>(AUDIT_FILE, []);
+  let prev = GENESIS;
+  for (let i = 0; i < log.length; i++) {
+    const e = log[i];
+    if (e.prevHash !== prev) return { ok: false, count: log.length, brokenAt: i };
+    const expected = entryHash({
+      id: e.id,
+      at: e.at,
+      userId: e.userId,
+      username: e.username,
+      action: e.action,
+      detail: e.detail,
+      prevHash: e.prevHash,
+    });
+    if (expected !== e.hash) return { ok: false, count: log.length, brokenAt: i };
+    prev = e.hash;
+  }
+  return { ok: true, count: log.length, brokenAt: null };
 }
 
 export async function exportAll(): Promise<unknown> {

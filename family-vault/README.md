@@ -8,20 +8,40 @@ This is an MVP that demonstrates the core product:
 
 - **Private AI chat** over your own documents (RAG), powered by a local model via **Ollama**.
 - **Per-user logins** with **vault-level access control** (e.g. kids can't see Work files).
-- **Append-only audit log** — every access is recorded locally (a compliance asset).
-- **One-click backup** (owner only) so a single box never means single point of loss.
+- **Encryption at rest** — every data file (documents, users, audit log) is encrypted
+  with AES-256-GCM. The on-disk files are ciphertext, not readable plaintext.
+- **Tamper-evident audit log** — entries are linked in a SHA-256 hash chain, so any
+  edit, deletion, or reorder of past entries is detected. The audit page shows a live
+  integrity check.
+- **Encrypted backup** (owner only) — the export is an encrypted blob, restorable only
+  with your vault key/passphrase, so a single box never means a single point of loss.
+- **Login rate-limiting / lockout** to slow password guessing.
 - **Graceful fallback**: if Ollama isn't running, answers fall back to extractive
   saved-notes so the app is never hard-down.
 
-## Honest scope / what this is NOT (yet)
+## Security model — honest version
 
-- It is **not** a turnkey "HIPAA-certified" product. Local storage solves the biggest
-  piece (no third party), but full compliance also needs disk encryption, OS hardening,
-  physical security, and policy — get a compliance/legal review before charging regulated buyers.
-- Storage is local JSON files under `data/` (gitignored). Production should add
-  encryption at rest and a real datastore.
-- Auth is a signed session cookie with scrypt-hashed passwords — fine for a demo,
-  harden before production (rate limiting, rotation, MFA).
+- **Encryption key.** If you set `VAULT_PASSPHRASE`, the encryption key is derived
+  from it (scrypt) and is **never written to disk** — this protects data even against
+  full-disk theft. If you do **not** set it, a random key is generated and stored at
+  `data/.keys/master.key` (chmod 600); this protects against casual file access but
+  **not** someone who steals the whole disk (they get the key too). The app warns in
+  this mode. Set a passphrase in production.
+- **Session secret.** Comes from `SESSION_SECRET`, or a strong random value generated
+  and persisted on first run. There is **no hardcoded default**, so a missing env var
+  cannot leave the app signing sessions with a public key.
+
+## What this is NOT (yet)
+
+- It is **not** a turnkey "HIPAA-certified" product. Encryption + audit + access control
+  are necessary pieces, but full compliance also needs OS hardening, physical security,
+  TLS in transit, breach policy, and legal review. Get a compliance review before
+  charging regulated buyers.
+- **AI answers can be wrong.** The model is instructed to answer only from your files and
+  to say when it doesn't know, but small local models still make mistakes. Verify
+  anything important. Not legal/medical/financial advice.
+- Storage is encrypted local files under `data/` (gitignored). A larger deployment would
+  move to a real datastore (still encrypted) and add MFA + key rotation.
 
 ## Run it
 
@@ -48,7 +68,8 @@ The app auto-detects Ollama. Without it, you still get retrieval + extractive an
 | `OLLAMA_URL` | `http://127.0.0.1:11434` | Local Ollama server |
 | `OLLAMA_MODEL` | `qwen2.5:0.5b` | Chat model (use a bigger one on the rig) |
 | `OLLAMA_EMBED_MODEL` | `nomic-embed-text` | Embedding model |
-| `SESSION_SECRET` | dev default | Set a strong value in production |
+| `SESSION_SECRET` | auto-generated & persisted | Session signing key (no insecure default) |
+| `VAULT_PASSPHRASE` | _(none)_ | If set, encryption key is derived from it and never stored on disk |
 
 ## Demo logins
 

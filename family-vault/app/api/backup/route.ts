@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { appendAudit, exportAll } from "@/lib/storage";
+import { encryptString } from "@/lib/crypto";
 
 export async function GET() {
   const user = await getSessionUser();
@@ -10,18 +11,23 @@ export async function GET() {
   }
 
   const data = await exportAll();
+  // The backup file is encrypted (AES-256-GCM) with the vault key. Restoring it
+  // requires the same VAULT_PASSPHRASE (or the machine's key file). This is a
+  // real encrypted blob, not plaintext.
+  const encrypted = await encryptString(JSON.stringify(data));
+
   await appendAudit({
     userId: user.id,
     username: user.username,
     action: "backup",
-    detail: "Exported full encrypted-at-rest backup (JSON)",
+    detail: "Exported encrypted backup (AES-256-GCM)",
   });
 
-  const filename = `family-vault-backup-${new Date().toISOString().slice(0, 10)}.json`;
-  return new NextResponse(JSON.stringify(data, null, 2), {
+  const filename = `family-vault-backup-${new Date().toISOString().slice(0, 10)}.fvbackup`;
+  return new NextResponse(encrypted, {
     status: 200,
     headers: {
-      "content-type": "application/json",
+      "content-type": "application/octet-stream",
       "content-disposition": `attachment; filename="${filename}"`,
     },
   });

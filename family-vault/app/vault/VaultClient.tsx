@@ -185,6 +185,10 @@ export default function VaultClient({
               Ask
             </button>
           </form>
+          <p className="mt-3 text-xs text-slate-500">
+            AI answers can be wrong or incomplete — always verify important details against the
+            original document. This is not legal, medical, or financial advice.
+          </p>
         </section>
       ) : (
         <section className="rounded-xl border border-slate-700/60 bg-panel/60 p-4">
