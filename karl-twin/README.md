@@ -98,11 +98,17 @@ Install Ollama on the host, pull a local model, and set:
 ```bash
 KARL_TWIN_PROVIDER=ollama
 OLLAMA_BASE_URL=http://127.0.0.1:11434
-OLLAMA_MODEL=qwen2.5:3b
+OLLAMA_MODEL=qwen2.5:0.5b
 ```
 
 Then start the API and worker as usual. The local model only proposes Action
 Envelopes; execution still goes through the approval UI and worker.
+
+Run a setup check before the first natural-language run:
+
+```bash
+python -m karl_twin.admin doctor
+```
 
 ## Voice mode
 

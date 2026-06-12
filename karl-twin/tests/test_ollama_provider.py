@@ -87,6 +87,13 @@ def test_ollama_provider_wraps_server_errors(monkeypatch):
         ))
 
 
+def test_ollama_provider_rejects_invalid_timeout(monkeypatch):
+    monkeypatch.setenv("OLLAMA_TIMEOUT_SEC", "nope")
+
+    with pytest.raises(RuntimeError, match="OLLAMA_TIMEOUT_SEC must be a number"):
+        OllamaProvider()
+
+
 def test_create_reasoning_provider_selects_ollama(monkeypatch):
     monkeypatch.setenv("KARL_TWIN_PROVIDER", "ollama")
     monkeypatch.setenv("OLLAMA_MODEL", "llama-local")
