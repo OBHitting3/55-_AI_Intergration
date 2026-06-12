@@ -2,24 +2,26 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { ollamaAvailable, CHAT_MODEL } from "@/lib/ollama";
-import { VAULTS } from "@/lib/types";
+import { config } from "@/lib/config";
+import { userCount } from "@/lib/storage";
 import VaultClient from "./VaultClient";
 import LogoutButton from "./LogoutButton";
 
 export const dynamic = "force-dynamic";
 
 export default async function VaultPage() {
+  if ((await userCount()) === 0) redirect("/setup");
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
   const online = await ollamaAvailable();
-  const myVaults = VAULTS.filter((v) => user.vaults.includes(v.id));
+  const myVaults = config.vaults.filter((v) => user.vaults.includes(v.id));
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6">
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">Family Vault</h1>
+          <h1 className="text-xl font-semibold">{config.brandName}</h1>
           <p className="text-sm text-slate-400">
             Signed in as <span className="text-slate-200">{user.name}</span> ·{" "}
             <span className="capitalize">{user.role}</span>
@@ -28,6 +30,12 @@ export default async function VaultPage() {
         <div className="flex items-center gap-2">
           {user.role === "owner" && (
             <>
+              <Link
+                href="/settings"
+                className="rounded-lg border border-slate-600 px-3 py-1.5 text-sm hover:border-accent"
+              >
+                Manage people
+              </Link>
               <Link
                 href="/audit"
                 className="rounded-lg border border-slate-600 px-3 py-1.5 text-sm hover:border-accent"

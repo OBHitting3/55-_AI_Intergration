@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { config } from "@/lib/config";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Family Vault — Private, local AI",
-  description: "Your data stays home. A private AI over your own files.",
+  title: `${config.brandName} — Private, local AI`,
+  description: config.tagline,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

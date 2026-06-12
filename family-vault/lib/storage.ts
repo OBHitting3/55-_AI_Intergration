@@ -1,8 +1,9 @@
 import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
-import { AuditEntry, DocRecord, User, VaultId } from "./types";
+import { AuditEntry, DocRecord, Role, User, VaultId } from "./types";
 import { decryptString, encryptString, sha256 } from "./crypto";
+import { config, isValidVault, vaultIds } from "./config";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
@@ -57,11 +58,17 @@ function makeUser(
 
 let initialized = false;
 
-// Seeds demo users + sample documents on first run so the product is
-// immediately demonstrable. Real deployments would replace this seed.
+// On first run: if SEED_DEMO=1, seed demo accounts + sample docs so the product
+// is instantly demoable. Otherwise (the default for a real sold unit) do nothing
+// here — the owner is created through the /setup onboarding flow instead.
 export async function init(): Promise<void> {
   if (initialized) return;
   await ensureDir(DATA_DIR);
+
+  if (!config.seedDemo) {
+    initialized = true;
+    return;
+  }
 
   const users: User[] = [
     makeUser("dad", "Dr. Karl (Owner)", "owner", ["work", "family"], "dad12345"),
@@ -109,6 +116,50 @@ export async function getUserByUsername(username: string): Promise<User | undefi
 export async function getUserById(id: string): Promise<User | undefined> {
   const users = await getUsers();
   return users.find((u) => u.id === id);
+}
+
+async function saveUsers(users: User[]): Promise<void> {
+  await writeJson(USERS_FILE, users);
+}
+
+export async function userCount(): Promise<number> {
+  return (await getUsers()).length;
+}
+
+export type CreateUserResult =
+  | { ok: true; user: User }
+  | { ok: false; error: string };
+
+export async function createUser(opts: {
+  username: string;
+  name: string;
+  password: string;
+  role: Role;
+  vaults: VaultId[];
+}): Promise<CreateUserResult> {
+  const username = opts.username.trim();
+  if (!username || !opts.password) {
+    return { ok: false, error: "Username and password are required" };
+  }
+  if (opts.password.length < 8) {
+    return { ok: false, error: "Password must be at least 8 characters" };
+  }
+  const users = await getUsers();
+  if (users.some((u) => u.username.toLowerCase() === username.toLowerCase())) {
+    return { ok: false, error: "That username is already taken" };
+  }
+  // Owners always get every vault; members get the (validated) selected vaults.
+  const vaults =
+    opts.role === "owner" ? vaultIds() : opts.vaults.filter((v) => isValidVault(v));
+  const user = makeUser(username, opts.name.trim() || username, opts.role, vaults, opts.password);
+  users.push(user);
+  await saveUsers(users);
+  return { ok: true, user };
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  const users = await getUsers();
+  await saveUsers(users.filter((u) => u.id !== id));
 }
 
 function docPath(id: string) {

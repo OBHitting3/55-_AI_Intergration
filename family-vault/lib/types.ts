@@ -1,9 +1,5 @@
-export type VaultId = "work" | "family";
-
-export const VAULTS: { id: VaultId; label: string }[] = [
-  { id: "work", label: "Work (confidential)" },
-  { id: "family", label: "Family" },
-];
+// Vaults are configurable per unit (see lib/config.ts), so a vault id is a string.
+export type VaultId = string;
 
 export type Role = "owner" | "member";
 

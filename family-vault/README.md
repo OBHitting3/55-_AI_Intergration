@@ -45,10 +45,21 @@ This is an MVP that demonstrates the core product:
 
 ## Run it
 
+Quickest path (replicable, idempotent installer):
+
+```bash
+./setup.sh           # installs deps, builds, pulls the AI model, makes .env + a strong secret
+npm run start        # http://localhost:3001  → first-run screen asks you to create the owner
+```
+
+Or manually for development:
+
 ```bash
 npm install
-npm run dev   # http://localhost:3001
+npm run dev          # http://localhost:3001
 ```
+
+To build and sell units repeatably, see **`SETUP.md`** (build / adjust / run-on-boot / verify).
 
 ### Enable the local AI (optional but recommended)
 
@@ -71,13 +82,25 @@ The app auto-detects Ollama. Without it, you still get retrieval + extractive an
 | `SESSION_SECRET` | auto-generated & persisted | Session signing key (no insecure default) |
 | `VAULT_PASSPHRASE` | _(none)_ | If set, encryption key is derived from it and never stored on disk |
 
-## Demo logins
+## First run (real units)
+
+By default there are **no demo accounts**. On first launch the app shows a **setup
+screen** where the customer creates their **owner account**. The owner can then go to
+**Manage people** to add family members / staff and assign which vaults each can use.
+
+## Demo mode (for your sales demos only)
+
+Set `SEED_DEMO=1` (or run `./setup.sh --demo`) to seed sample data:
 
 | User | Password | Access |
 |---|---|---|
-| `dad` | `dad12345` | Owner — Work + Family vaults, audit log, backup |
+| `dad` | `dad12345` | Owner — all vaults, audit log, backup |
 | `kid` | `kid12345` | Member — Family vault only |
 
-Try asking `kid` "What is the deposition date for the Hendricks matter?" — it has no
-access to the Work vault, so it correctly returns nothing. Ask `dad` the same question
-and it answers. That's the access control in action.
+Then ask `kid` "What is the deposition date for the Hendricks matter?" — no Work access,
+so it returns nothing. Ask `dad` the same question and it answers. That's access control.
+
+## Health check
+
+`curl -s http://localhost:3001/api/health` → brand, model, vaults, `ollamaOnline`,
+`setupComplete`, `demoMode`.
