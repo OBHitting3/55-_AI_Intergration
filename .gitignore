@@ -40,3 +40,12 @@ next-env.d.ts
 src/data/sync-state.json
 src/data/audit-log.json
 src/data/config-manifest.json
+
+# drive import — secrets and junk
+drive-import/**/.env
+drive-import/**/.env.*
+drive-import/**/*.pem
+drive-import/**/*.key
+drive-import/**/node_modules/
+drive-import/**/Thumbs.db
+drive-import/**/System Volume Information/

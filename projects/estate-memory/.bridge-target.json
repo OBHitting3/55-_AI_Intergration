@@ -1,0 +1,5 @@
+{
+  "id": "estate-memory",
+  "formats": ["knowledge-base", "cursorrules"],
+  "tags": ["rag", "estate", "legal", "hnw"]
+}

@@ -1,0 +1,5 @@
+{
+  "id": "ai-bridge-sync",
+  "formats": ["cursorrules", "knowledge-base"],
+  "tags": ["mcp", "sync", "dashboard"]
+}

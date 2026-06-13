@@ -3,9 +3,15 @@ import HealthStatus from "@/components/bridge/health-status";
 import SyncHistory from "@/components/bridge/sync-history";
 import type { BridgeContext } from "@/types/bridge-context";
 
+const PROJECTS_INDEX = `Iron Forge Studios monorepo (see PROJECTS.md):
+- ai-bridge-sync (src/) — MCP dashboard, config validation, sync
+- palm-luxe-tycoon — Roblox LC economy
+- estate-memory — estate/trust RAG (integrate from projects/estate-memory/)
+- karl-twin — approval-gated digital twin agent
+- drive-import/ — staging for external USB/Windows drive scans`;
+
 const DEFAULT_CONTEXT: BridgeContext = {
-  globalContext:
-    "Iron Forge Studios AI Bridge Sync — global context placeholder. Edit this via the Global Context editor.",
+  globalContext: `${PROJECTS_INDEX}\n\nIron Forge Studios AI Bridge Sync — MCP-only architecture. Edit global context via the dashboard or DEFAULT_GLOBAL_CONTEXT.`,
   targets: [
     { id: "cursor", enabled: true, format: "cursorrules" },
     { id: "claude", enabled: true, format: "knowledge-base" },

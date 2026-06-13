@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "updatedAt": "2026-05-21T17:24:30.777Z",
+  "projects": [
+    {
+      "name": "AI Bridge Sync",
+      "slug": "ai-bridge-sync",
+      "status": "active",
+      "path": "src",
+      "type": "web-app",
+      "description": "MCP-only LLM context sync dashboard"
+    },
+    {
+      "name": "Estate Memory",
+      "slug": "estate-memory",
+      "status": "active",
+      "path": "projects/estate-memory",
+      "type": "unknown",
+      "description": "Sovereign RAG for estate, trust, and family-office documents. Cited search with per-query audit logging for attorney wor"
+    },
+    {
+      "name": "Karl Twin",
+      "slug": "karl-twin",
+      "status": "active",
+      "path": "projects/karl-twin",
+      "type": "agent-tooling",
+      "description": "Sovereign digital twin for Karl. Voice-driven, multi-agent, sandboxed, approval-gated, with persistent memory."
+    },
+    {
+      "name": "Palm Luxe Tycoon",
+      "slug": "palm-luxe-tycoon",
+      "status": "active",
+      "path": "projects/palm-luxe-tycoon",
+      "type": "roblox-game",
+      "description": "```"
+    }
+  ],
+  "syncedFromKit": []
+}
