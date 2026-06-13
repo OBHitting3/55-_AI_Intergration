@@ -20,6 +20,7 @@ const TOKEN_LIMITS: Record<LLMTarget["id"], number> = {
   claude: 200_000,
   chatgpt: 128_000,
   gemini: 1_000_000,
+  superbullet: 100_000,
 };
 
 const FORMAT_REQUIREMENTS: Record<LLMTarget["id"], string[]> = {
@@ -30,6 +31,11 @@ const FORMAT_REQUIREMENTS: Record<LLMTarget["id"], string[]> = {
     "Max 128k tokens",
   ],
   gemini: ["Must be valid system prompt text", "Max 1M tokens"],
+  superbullet: [
+    "Writes .superbullet/project-context.md in game repo root",
+    "SuperbulletAI desktop opens same folder as VS Code",
+    "Max 100k tokens",
+  ],
 };
 
 function estimateTokenCount(text: string): number {
@@ -86,6 +92,10 @@ function validateGeminiFormat(context: BridgeContext): string[] {
   return errors;
 }
 
+function validateSuperbulletFormat(context: BridgeContext): string[] {
+  return validateCursorFormat(context);
+}
+
 const VALIDATORS: Record<
   LLMTarget["id"],
   (ctx: BridgeContext) => string[]
@@ -94,6 +104,7 @@ const VALIDATORS: Record<
   claude: validateClaudeFormat,
   chatgpt: validateChatGPTFormat,
   gemini: validateGeminiFormat,
+  superbullet: validateSuperbulletFormat,
 };
 
 export function validateContextForTargets(

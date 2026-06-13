@@ -1,7 +1,13 @@
 export interface LLMTarget {
-  id: "cursor" | "claude" | "chatgpt" | "gemini";
+  id: "cursor" | "claude" | "chatgpt" | "gemini" | "superbullet";
   enabled: boolean;
   format: string;
+}
+
+/** Files produced for the VS Code → SuperbulletAI → Rojo → Studio line */
+export interface SuperbulletExportFile {
+  path: string;
+  content: string;
 }
 
 export interface BridgeContext {

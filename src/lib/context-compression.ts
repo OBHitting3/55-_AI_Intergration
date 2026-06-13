@@ -14,6 +14,7 @@ const TOKEN_BUDGETS: Record<LLMTarget["id"], number> = {
   claude: 180_000,  // Leave headroom below 200k hard limit
   chatgpt: 110_000, // Leave headroom below 128k hard limit
   gemini: 900_000,  // Leave headroom below 1M hard limit
+  superbullet: 90_000,
 };
 
 function estimateTokens(text: string): number {
