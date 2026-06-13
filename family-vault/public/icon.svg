@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Family Vault">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e3a8a"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- House -->
+  <path d="M256 120 L392 232 L360 232 L360 384 L152 384 L152 232 L120 232 Z" fill="#3b82f6"/>
+  <!-- Lock body -->
+  <rect x="210" y="280" width="92" height="80" rx="14" fill="#ffffff"/>
+  <!-- Lock shackle -->
+  <path d="M226 280 v-20 a30 30 0 0 1 60 0 v20" fill="none" stroke="#ffffff" stroke-width="14"/>
+  <!-- Keyhole -->
+  <circle cx="256" cy="312" r="11" fill="#1e3a8a"/>
+  <rect x="251" y="318" width="10" height="22" rx="5" fill="#1e3a8a"/>
+</svg>

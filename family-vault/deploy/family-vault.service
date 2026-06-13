@@ -1,0 +1,23 @@
+# systemd unit to run a Family Vault unit on boot (Linux rigs).
+# 1) Edit User, WorkingDirectory, and the VAULT_PASSPHRASE below.
+# 2) sudo cp deploy/family-vault.service /etc/systemd/system/
+# 3) sudo systemctl daemon-reload && sudo systemctl enable --now family-vault
+# 4) Check: systemctl status family-vault   and   curl -s localhost:3001/api/health
+
+[Unit]
+Description=Family Vault — private local AI appliance
+After=network.target
+
+[Service]
+Type=simple
+User=CHANGE_ME
+WorkingDirectory=/opt/family-vault
+Environment=NODE_ENV=production
+# Set the encryption passphrase here (keep this file readable only by root: chmod 600).
+Environment=VAULT_PASSPHRASE=CHANGE_ME_STRONG_PASSPHRASE
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
