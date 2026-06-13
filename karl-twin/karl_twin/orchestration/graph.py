@@ -13,6 +13,7 @@ suspended. Postgres URL is read from env (POSTGRES_URL).
 from __future__ import annotations
 
 import os
+import re
 import time
 import uuid
 from typing import Any
@@ -36,6 +37,7 @@ from karl_twin.agents.providers import (
 from karl_twin.api.event_log import EventLog, default_path
 from karl_twin.cac.scorer import score_action
 from karl_twin.identity import secrets as sec
+from karl_twin.intent import interpret_user_intent
 from karl_twin.orchestration.state import TwinState
 
 sec.load()
@@ -57,30 +59,21 @@ def parse_intent(state: TwinState, *, provider: ReasoningProvider) -> TwinState:
     state.setdefault("run_id", str(uuid.uuid4()))
     text = state.get("input_text", "")
     EVENTS.log("node.start", run_id=state["run_id"], node="parse_intent")
-    res = provider.reason(ReasoningRequest(
-        system="You parse a user's natural-language request into a structured intent. Be concise and literal.",
-        user=text,
-        context={},
-        json_schema={
-            "type": "object",
-            "required": ["action_hint", "summary", "confidence"],
-            "properties": {
-                "action_hint": {"type": "string", "description": "best-guess action_type, e.g. file.write"},
-                "summary": {"type": "string"},
-                "confidence": {"type": "number"},
-            },
-        },
-    ))
-    state["intent"] = res.parsed or {"action_hint": "respond", "summary": text, "confidence": 0.5}
+    interpretation = interpret_user_intent(provider, text)
+    state["intent_interpretation"] = {
+        "raw_text": interpretation.raw_text,
+        **interpretation.as_intent(),
+    }
+    state["intent"] = interpretation.as_intent()
     EVENTS.log(
         "node.end",
         run_id=state["run_id"],
         node="parse_intent",
         latency_ms=int((time.time() - t0) * 1000),
-        model=res.model,
-        tokens_in=res.tokens_in,
-        tokens_out=res.tokens_out,
-        confidence=res.confidence,
+        model=interpretation.model,
+        tokens_in=interpretation.tokens_in,
+        tokens_out=interpretation.tokens_out,
+        confidence=interpretation.confidence,
     )
     return state
 
@@ -124,7 +117,7 @@ def interpret(state: TwinState, *, provider: ReasoningProvider) -> TwinState:
     ))
     parsed = res.parsed or {"goal": state.get("input_text", ""), "needed_clarification": None, "confidence": 0.5}
     state["interpretation"] = parsed
-    state["confidence"] = float(parsed.get("confidence", res.confidence or 0.5))
+    state["confidence"] = _bounded_confidence(parsed.get("confidence", res.confidence or 0.5))
     if parsed.get("needed_clarification"):
         state["clarify_q"] = str(parsed["needed_clarification"])
     EVENTS.log(
@@ -207,14 +200,7 @@ def plan(state: TwinState, *, provider: ReasoningProvider) -> TwinState:
             },
         },
     ))
-    p = res.parsed or {
-        "action_type": "respond",
-        "tool": "respond",
-        "payload": {"text": state.get("input_text", "")},
-        "reason": "fallback respond plan",
-        "risk_level": "low",
-        "confidence": 0.4,
-    }
+    p = _normalize_plan(res.parsed, state)
     state["plan"] = p
     EVENTS.log(
         "node.end",
@@ -230,6 +216,52 @@ def plan(state: TwinState, *, provider: ReasoningProvider) -> TwinState:
     cac = score_action(p["action_type"], p.get("payload", {}), context={"risk_level": p.get("risk_level")})
     state["cac_score"] = cac.model_dump(mode="json")
     return state
+
+
+def _normalize_plan(parsed: dict[str, Any] | None, state: TwinState) -> dict[str, Any]:
+    if isinstance(parsed, dict) and parsed.get("action_type") and parsed.get("payload") is not None:
+        return {
+            "action_type": str(parsed["action_type"]),
+            "tool": str(parsed.get("tool") or parsed["action_type"]),
+            "payload": parsed.get("payload") or {},
+            "reason": str(parsed.get("reason") or "model-proposed plan"),
+            "risk_level": str(parsed.get("risk_level") or "low"),
+            "confidence": _bounded_confidence(parsed.get("confidence", 0.5)),
+        }
+    return _fallback_plan_from_text(state.get("input_text", ""))
+
+
+def _fallback_plan_from_text(text: str) -> dict[str, Any]:
+    file_match = re.search(
+        r"(?:file\s+(?:named|called)|write\s+(?:a\s+)?file(?:\s+(?:named|called))?)\s+['\"]?([A-Za-z0-9_.-]+)['\"]?.*?(?:saying|containing|with(?: exactly)?):?\s*['\"]?(.+?)['\"]?$",
+        text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    if file_match:
+        return {
+            "action_type": "file.write",
+            "tool": "file.write",
+            "payload": {"path": file_match.group(1), "content": file_match.group(2).strip().rstrip(".")},
+            "reason": "deterministic fallback parsed a file.write request",
+            "risk_level": "low",
+            "confidence": 0.65,
+        }
+    return {
+        "action_type": "respond",
+        "tool": "respond",
+        "payload": {"text": text},
+        "reason": "fallback respond plan",
+        "risk_level": "low",
+        "confidence": 0.4,
+    }
+
+
+def _bounded_confidence(value: Any) -> float:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        parsed = 0.5
+    return max(0.0, min(1.0, parsed))
 
 
 def propose_action(state: TwinState) -> TwinState:

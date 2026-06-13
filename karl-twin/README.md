@@ -6,6 +6,13 @@ Sovereign digital twin for Karl. Voice-driven, multi-agent, sandboxed, approval-
 
 `LISTEN → TRANSCRIBE → PARSE_INTENT → RETRIEVE_MEMORY → INTERPRET (confidence) → CLARIFY (if conf<0.7) → SCORE_CAC → PLAN → PROPOSE (Action Envelope) → APPROVAL_GATE (LangGraph interrupt + PostgresSaver) → EXECUTE (worker; E2B for risky, local for safe) → VERIFY → STORE_MEMORY → RESPOND`
 
+## Product loop
+
+Karl's first job is intent interpretation: turn rough, misspelled, emotional,
+or incomplete user input into clear meaning, a business goal, and the next
+approved action. The user should be able to say what they mean naturally; Karl
+does the translation before planning any work.
+
 ## Non-negotiable invariants
 
 1. The LLM never invokes tools. It only emits Action Envelopes.
