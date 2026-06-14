@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { config } from "@/lib/config";
+import InstallPrompt from "./InstallPrompt";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,7 +25,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="text-slate-100 antialiased">{children}</body>
+      <body className="text-slate-100 antialiased">
+        {children}
+        <InstallPrompt />
+      </body>
     </html>
   );
 }
