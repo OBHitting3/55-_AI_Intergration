@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { config } from "@/lib/config";
 import InstallPrompt from "./InstallPrompt";
+import AccessibilityToggle from "./AccessibilityToggle";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="text-slate-100 antialiased">
+        <AccessibilityToggle />
         {children}
         <InstallPrompt />
       </body>

@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
-import { ollamaAvailable, CHAT_MODEL } from "@/lib/ollama";
+import { ollamaAvailable } from "@/lib/ollama";
 import { config } from "@/lib/config";
-import { userCount } from "@/lib/storage";
+import { getActiveModel, userCount } from "@/lib/storage";
 import VaultClient from "./VaultClient";
 import LogoutButton from "./LogoutButton";
 
@@ -15,11 +15,12 @@ export default async function VaultPage() {
   if (!user) redirect("/login");
 
   const online = await ollamaAvailable();
+  const activeModel = await getActiveModel();
   const myVaults = config.vaults.filter((v) => user.vaults.includes(v.id));
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <header className="mb-6 flex flex-wrap items-center justify-between gap-3 pr-12 sm:pr-0">
         <div>
           <h1 className="text-xl font-semibold">{config.brandName}</h1>
           <p className="text-sm text-slate-400">
@@ -62,7 +63,7 @@ export default async function VaultPage() {
         }`}
       >
         {online ? (
-          <>Local AI online · model <code>{CHAT_MODEL}</code> · nothing leaves this machine.</>
+          <>Local AI online · model <code>{activeModel}</code> · nothing leaves this machine.</>
         ) : (
           <>Local AI offline · answers use saved notes (extractive fallback). Start Ollama to enable full answers.</>
         )}

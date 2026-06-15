@@ -15,7 +15,7 @@ export default async function AuditPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6">
-      <header className="mb-6 flex items-center justify-between">
+      <header className="mb-6 flex items-center justify-between pr-12 sm:pr-0">
         <div>
           <h1 className="text-xl font-semibold">Audit log</h1>
           <p className="text-sm text-slate-400">Every access is recorded, locally.</p>

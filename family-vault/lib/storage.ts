@@ -8,6 +8,7 @@ import { config, isValidVault, vaultIds } from "./config";
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const AUDIT_FILE = path.join(DATA_DIR, "audit.json");
+const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 const DOCS_DIR = path.join(DATA_DIR, "docs");
 
 async function ensureDir(dir: string) {
@@ -160,6 +161,25 @@ export async function createUser(opts: {
 export async function deleteUser(id: string): Promise<void> {
   const users = await getUsers();
   await saveUsers(users.filter((u) => u.id !== id));
+}
+
+export interface Settings {
+  activeModel?: string;
+}
+
+export async function getSettings(): Promise<Settings> {
+  return readJson<Settings>(SETTINGS_FILE, {});
+}
+
+export async function getActiveModel(): Promise<string> {
+  const s = await getSettings();
+  return s.activeModel || config.model;
+}
+
+export async function setActiveModel(model: string): Promise<void> {
+  const s = await getSettings();
+  s.activeModel = model;
+  await writeJson(SETTINGS_FILE, s);
 }
 
 function docPath(id: string) {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { appendAudit, listDocs } from "@/lib/storage";
+import { appendAudit, getActiveModel, listDocs } from "@/lib/storage";
 import { retrieve } from "@/lib/rag";
 import { generateAnswer } from "@/lib/ollama";
 
@@ -21,7 +21,8 @@ export async function POST(req: Request) {
     .map((h, i) => `[${i + 1}] (${h.vault} • ${h.docTitle})\n${h.text}`)
     .join("\n\n");
 
-  const result = await generateAnswer(question, context);
+  const activeModel = await getActiveModel();
+  const result = await generateAnswer(question, context, activeModel);
 
   const sources = hits.map((h) => ({
     vault: h.vault,

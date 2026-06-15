@@ -22,6 +22,20 @@ export async function ollamaAvailable(): Promise<boolean> {
   }
 }
 
+// Lists chat-capable models installed in Ollama (excludes the embedding model).
+export async function listModels(): Promise<string[]> {
+  try {
+    const res = await withTimeout(fetch(`${OLLAMA_URL}/api/tags`), 2500);
+    if (!res.ok) return [];
+    const data = (await res.json()) as { models?: { name?: string }[] };
+    return (data.models || [])
+      .map((m) => m.name || "")
+      .filter((n) => n && n !== EMBED_MODEL && !n.startsWith("nomic-embed"));
+  } catch {
+    return [];
+  }
+}
+
 export async function embedTexts(texts: string[]): Promise<(number[] | null)[]> {
   if (!(await ollamaAvailable())) return texts.map(() => null);
   const out: (number[] | null)[] = [];
@@ -61,7 +75,8 @@ export interface GenerateResult {
 
 export async function generateAnswer(
   question: string,
-  context: string
+  context: string,
+  model: string = CHAT_MODEL
 ): Promise<GenerateResult> {
   const system =
     "You are a private, local family assistant. Answer ONLY using the provided context. " +
@@ -85,7 +100,7 @@ export async function generateAnswer(
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          model: CHAT_MODEL,
+          model,
           stream: false,
           options: { temperature: 0.2 },
           messages: [
@@ -100,7 +115,7 @@ export async function generateAnswer(
     const data = (await res.json()) as { message?: { content?: string } };
     const answer = data.message?.content?.trim();
     if (!answer) throw new Error("empty answer");
-    return { answer, model: CHAT_MODEL, usedModel: true };
+    return { answer, model, usedModel: true };
   } catch {
     return {
       answer:
