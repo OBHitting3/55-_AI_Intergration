@@ -26,6 +26,14 @@ export default function DashboardPage() {
         <p className="text-gray-400 text-sm mt-1">
           Iron Forge Studios — MCP-only architecture
         </p>
+        <nav className="mt-3 text-sm">
+          <a
+            href="/estate"
+            className="text-blue-400 hover:text-blue-300 underline"
+          >
+            Estate Memory →
+          </a>
+        </nav>
       </header>
 
       <section className="space-y-4">
