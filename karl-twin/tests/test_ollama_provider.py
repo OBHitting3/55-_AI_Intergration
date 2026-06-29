@@ -27,8 +27,8 @@ class _FakeClient:
     def __exit__(self, *exc):
         return False
 
-    def post(self, url, json):
-        self.requests.append({"url": url, "json": json, "timeout": self.timeout})
+    def post(self, url, json, headers=None):
+        self.requests.append({"url": url, "json": json, "headers": headers or {}, "timeout": self.timeout})
         return _FakeResponse({
             "message": {"content": '{"summary":"ok","confidence":0.82}'},
             "prompt_eval_count": 12,
@@ -37,7 +37,7 @@ class _FakeClient:
 
 
 class _FailingClient(_FakeClient):
-    def post(self, url, json):
+    def post(self, url, json, headers=None):
         request = httpx.Request("POST", url)
         response = httpx.Response(500, request=request, text='{"error":"load failed"}')
         raise httpx.HTTPStatusError("server error", request=request, response=response)
@@ -72,6 +72,18 @@ def test_ollama_provider_requests_json(monkeypatch):
     assert req["json"]["format"] == "json"
     assert req["json"]["stream"] is False
     assert req["json"]["model"] == "qwen-test"
+    assert req["headers"] == {}
+
+
+def test_ollama_provider_sends_bearer_key(monkeypatch):
+    _FakeClient.requests.clear()
+    monkeypatch.setattr("karl_twin.agents.providers.httpx.Client", _FakeClient)
+
+    provider = OllamaProvider(base_url="https://ollama.com", model="cloud-model", api_key="test-key", timeout_sec=3)
+    provider.reason(ReasoningRequest(system="Summarize.", user="hello", context={}, json_schema={"type": "object"}))
+
+    assert _FakeClient.requests[0]["url"] == "https://ollama.com/api/chat"
+    assert _FakeClient.requests[0]["headers"] == {"Authorization": "Bearer test-key"}
 
 
 def test_ollama_provider_wraps_server_errors(monkeypatch):
@@ -85,6 +97,13 @@ def test_ollama_provider_wraps_server_errors(monkeypatch):
             context={},
             json_schema={"type": "object"},
         ))
+
+
+def test_ollama_provider_rejects_invalid_timeout(monkeypatch):
+    monkeypatch.setenv("OLLAMA_TIMEOUT_SEC", "nope")
+
+    with pytest.raises(RuntimeError, match="OLLAMA_TIMEOUT_SEC must be a number"):
+        OllamaProvider()
 
 
 def test_create_reasoning_provider_selects_ollama(monkeypatch):

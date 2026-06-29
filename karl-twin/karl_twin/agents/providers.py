@@ -121,11 +121,13 @@ class OllamaProvider(ReasoningProvider):
         *,
         base_url: Optional[str] = None,
         model: Optional[str] = None,
+        api_key: Optional[str] = None,
         timeout_sec: Optional[float] = None,
     ):
         self.base_url = (base_url or os.environ.get("OLLAMA_BASE_URL") or "http://127.0.0.1:11434").rstrip("/")
         self.model = model or os.environ.get("OLLAMA_MODEL", "qwen2.5:3b")
-        self.timeout_sec = timeout_sec or float(os.environ.get("OLLAMA_TIMEOUT_SEC", "120"))
+        self.api_key = api_key if api_key is not None else os.environ.get("OLLAMA_API_KEY", "")
+        self.timeout_sec = timeout_sec if timeout_sec is not None else _env_float("OLLAMA_TIMEOUT_SEC", 120.0)
 
     def reason(self, req: ReasoningRequest) -> ReasoningResult:
         sys_prompt = req.system
@@ -153,15 +155,21 @@ class OllamaProvider(ReasoningProvider):
         if req.json_schema is not None:
             payload["format"] = "json"
 
+        headers = _ollama_headers(self.api_key)
         try:
             with httpx.Client(timeout=self.timeout_sec) as client:
-                resp = client.post(f"{self.base_url}/api/chat", json=payload)
+                resp = client.post(f"{self.base_url}/api/chat", json=payload, headers=headers)
                 resp.raise_for_status()
                 data = resp.json()
         except httpx.ConnectError as e:
             raise RuntimeError(
                 f"Ollama is not reachable at {self.base_url}. Start it with `ollama serve` "
                 f"and pull {self.model!r} with `ollama pull {self.model}`."
+            ) from e
+        except httpx.TimeoutException as e:
+            raise RuntimeError(
+                f"Ollama timed out after {self.timeout_sec:g}s while running {self.model!r}. "
+                "Try a smaller model or increase OLLAMA_TIMEOUT_SEC."
             ) from e
         except httpx.HTTPStatusError as e:
             detail = e.response.text[:500] if e.response is not None else ""
@@ -170,6 +178,8 @@ class OllamaProvider(ReasoningProvider):
                 "Check the Ollama server logs and confirm the model can load on this machine. "
                 f"Response: {detail}"
             ) from e
+        except httpx.RequestError as e:
+            raise RuntimeError(f"Ollama request failed for {self.base_url}: {e}") from e
 
         text = str((data.get("message") or {}).get("content") or data.get("response") or "")
         parsed: Optional[dict[str, Any]] = None
@@ -202,6 +212,24 @@ def create_reasoning_provider() -> ReasoningProvider:
         "Unsupported KARL_TWIN_PROVIDER={!r}. Use 'ollama' for free local LLM "
         "or 'anthropic' for Claude.".format(provider)
     )
+
+
+def _ollama_headers(api_key: str | None) -> dict[str, str]:
+    key = (api_key or "").strip()
+    return {"Authorization": f"Bearer {key}"} if key else {}
+
+
+def _env_float(name: str, default: float) -> float:
+    value = os.environ.get(name)
+    if value in (None, ""):
+        return default
+    try:
+        parsed = float(value)
+    except ValueError as e:
+        raise RuntimeError(f"{name} must be a number, got {value!r}.") from e
+    if parsed <= 0:
+        raise RuntimeError(f"{name} must be greater than zero, got {value!r}.")
+    return parsed
 
 
 def _safe_parse_json(text: str) -> Optional[dict[str, Any]]:

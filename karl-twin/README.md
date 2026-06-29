@@ -6,6 +6,13 @@ Sovereign digital twin for Karl. Voice-driven, multi-agent, sandboxed, approval-
 
 `LISTEN → TRANSCRIBE → PARSE_INTENT → RETRIEVE_MEMORY → INTERPRET (confidence) → CLARIFY (if conf<0.7) → SCORE_CAC → PLAN → PROPOSE (Action Envelope) → APPROVAL_GATE (LangGraph interrupt + PostgresSaver) → EXECUTE (worker; E2B for risky, local for safe) → VERIFY → STORE_MEMORY → RESPOND`
 
+## Product loop
+
+Karl's first job is intent interpretation: turn rough, misspelled, emotional,
+or incomplete user input into clear meaning, a business goal, and the next
+approved action. The user should be able to say what they mean naturally; Karl
+does the translation before planning any work.
+
 ## Non-negotiable invariants
 
 1. The LLM never invokes tools. It only emits Action Envelopes.
@@ -98,11 +105,33 @@ Install Ollama on the host, pull a local model, and set:
 ```bash
 KARL_TWIN_PROVIDER=ollama
 OLLAMA_BASE_URL=http://127.0.0.1:11434
-OLLAMA_MODEL=qwen2.5:3b
+OLLAMA_MODEL=qwen2.5:0.5b
 ```
 
 Then start the API and worker as usual. The local model only proposes Action
 Envelopes; execution still goes through the approval UI and worker.
+
+Run a setup check before the first natural-language run:
+
+```bash
+python -m karl_twin.admin doctor
+```
+
+## Ollama Cloud mode
+
+Karl can also use Ollama's hosted API when a local machine cannot run the
+model. Create an API key at `https://ollama.com/settings/keys`, then set:
+
+```bash
+KARL_TWIN_PROVIDER=ollama
+OLLAMA_BASE_URL=https://ollama.com
+OLLAMA_API_KEY=<your key>
+OLLAMA_MODEL=gpt-oss:120b
+```
+
+Use `python -m karl_twin.admin doctor` to verify the key, model, and generation
+before the first natural-language run. Local Ollama at `127.0.0.1:11434` does
+not need `OLLAMA_API_KEY`.
 
 ## Voice mode
 

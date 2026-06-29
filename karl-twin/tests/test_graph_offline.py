@@ -16,7 +16,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.types import Command
 
 from karl_twin.agents.providers import ReasoningProvider, ReasoningRequest, ReasoningResult
-from karl_twin.orchestration.graph import build_graph
+from karl_twin.orchestration.graph import build_graph, plan
 
 
 class StubProvider(ReasoningProvider):
@@ -27,8 +27,17 @@ class StubProvider(ReasoningProvider):
     def reason(self, req: ReasoningRequest) -> ReasoningResult:
         self.calls += 1
         sys = req.system or ""
-        if "parse a user's natural-language request" in sys:
-            parsed = {"action_hint": self.plan_action, "summary": req.user, "confidence": 0.9}
+        if "Karl's Intent Interpreter" in sys:
+            parsed = {
+                "corrected_text": req.user,
+                "intended_meaning": req.user,
+                "business_goal": "Complete the requested task.",
+                "next_action": "Plan the requested action.",
+                "action_type_hint": self.plan_action,
+                "needs_clarification": False,
+                "clarification_question": None,
+                "confidence": 0.9,
+            }
         elif "interpret the user's request" in sys:
             parsed = {"goal": req.user, "needed_clarification": None, "confidence": 0.9}
         elif "planner" in sys:
@@ -108,3 +117,28 @@ def test_graph_routes_clarify_below_threshold(tmp_path, monkeypatch):
     assert interrupts, "low-confidence interpret should route to clarify and interrupt"
     payload = interrupts[0].value
     assert "clarify_q" in payload
+
+
+def test_plan_falls_back_when_local_model_omits_action_type(tmp_path, monkeypatch):
+    monkeypatch.setenv("OUTPUT_DIR", str(tmp_path))
+
+    class IncompletePlanProvider(StubProvider):
+        def reason(self, req):
+            return ReasoningResult(
+                text="{}",
+                parsed={"confidence": 0.2},
+                confidence=0.2,
+                model="stub",
+                tokens_in=1,
+                tokens_out=1,
+            )
+
+    state = {
+        "run_id": "fallback-plan",
+        "input_text": "write a file named fallback.txt saying: fallback works.",
+    }
+
+    out = plan(state, provider=IncompletePlanProvider())
+
+    assert out["plan"]["action_type"] == "file.write"
+    assert out["plan"]["payload"] == {"path": "fallback.txt", "content": "fallback works"}
