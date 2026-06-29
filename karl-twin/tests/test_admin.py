@@ -1,5 +1,6 @@
 """Admin kill-switch CLI."""
 
+import karl_twin.admin.__main__ as admin_module
 from karl_twin.admin.__main__ import main as admin_main, PAUSE_FLAG
 
 
@@ -26,7 +27,7 @@ def test_status_runs_clean(capsys):
     assert "paused:" in out
 
 
-def test_doctor_reports_ollama_ready(monkeypatch, capsys):
+def test_doctor_reports_ollama_ready(monkeypatch, capsys, tmp_path):
     class TagsResponse:
         def raise_for_status(self):
             pass
@@ -43,6 +44,8 @@ def test_doctor_reports_ollama_ready(monkeypatch, capsys):
 
     monkeypatch.setenv("KARL_TWIN_PROVIDER", "ollama")
     monkeypatch.setenv("OLLAMA_MODEL", "qwen-test")
+    (tmp_path / ".env").write_text("KARL_TWIN_PROVIDER=ollama\n", encoding="utf-8")
+    monkeypatch.setattr(admin_module, "PROJECT_ROOT", tmp_path)
     monkeypatch.setattr("karl_twin.admin.__main__.httpx.get", lambda *a, **kw: TagsResponse())
     monkeypatch.setattr("karl_twin.admin.__main__.httpx.post", lambda *a, **kw: ChatResponse())
 
@@ -55,7 +58,7 @@ def test_doctor_reports_ollama_ready(monkeypatch, capsys):
     assert "OK   ollama_model_generates" in out
 
 
-def test_doctor_fails_when_ollama_model_missing(monkeypatch, capsys):
+def test_doctor_fails_when_ollama_model_missing(monkeypatch, capsys, tmp_path):
     class R:
         def raise_for_status(self):
             pass
@@ -65,6 +68,8 @@ def test_doctor_fails_when_ollama_model_missing(monkeypatch, capsys):
 
     monkeypatch.setenv("KARL_TWIN_PROVIDER", "ollama")
     monkeypatch.setenv("OLLAMA_MODEL", "qwen-test")
+    (tmp_path / ".env").write_text("KARL_TWIN_PROVIDER=ollama\n", encoding="utf-8")
+    monkeypatch.setattr(admin_module, "PROJECT_ROOT", tmp_path)
     monkeypatch.setattr("karl_twin.admin.__main__.httpx.get", lambda *a, **kw: R())
 
     rc = admin_main(["doctor"])
@@ -74,7 +79,7 @@ def test_doctor_fails_when_ollama_model_missing(monkeypatch, capsys):
     assert "FAIL ollama_model_downloaded" in out
 
 
-def test_doctor_fails_when_ollama_generation_fails(monkeypatch, capsys):
+def test_doctor_fails_when_ollama_generation_fails(monkeypatch, capsys, tmp_path):
     class TagsResponse:
         def raise_for_status(self):
             pass
@@ -87,6 +92,8 @@ def test_doctor_fails_when_ollama_generation_fails(monkeypatch, capsys):
 
     monkeypatch.setenv("KARL_TWIN_PROVIDER", "ollama")
     monkeypatch.setenv("OLLAMA_MODEL", "qwen-test")
+    (tmp_path / ".env").write_text("KARL_TWIN_PROVIDER=ollama\n", encoding="utf-8")
+    monkeypatch.setattr(admin_module, "PROJECT_ROOT", tmp_path)
     monkeypatch.setattr("karl_twin.admin.__main__.httpx.get", lambda *a, **kw: TagsResponse())
     monkeypatch.setattr("karl_twin.admin.__main__.httpx.post", fail_post)
 
