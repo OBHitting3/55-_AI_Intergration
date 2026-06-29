@@ -121,10 +121,12 @@ class OllamaProvider(ReasoningProvider):
         *,
         base_url: Optional[str] = None,
         model: Optional[str] = None,
+        api_key: Optional[str] = None,
         timeout_sec: Optional[float] = None,
     ):
         self.base_url = (base_url or os.environ.get("OLLAMA_BASE_URL") or "http://127.0.0.1:11434").rstrip("/")
         self.model = model or os.environ.get("OLLAMA_MODEL", "qwen2.5:3b")
+        self.api_key = api_key if api_key is not None else os.environ.get("OLLAMA_API_KEY", "")
         self.timeout_sec = timeout_sec if timeout_sec is not None else _env_float("OLLAMA_TIMEOUT_SEC", 120.0)
 
     def reason(self, req: ReasoningRequest) -> ReasoningResult:
@@ -153,9 +155,10 @@ class OllamaProvider(ReasoningProvider):
         if req.json_schema is not None:
             payload["format"] = "json"
 
+        headers = _ollama_headers(self.api_key)
         try:
             with httpx.Client(timeout=self.timeout_sec) as client:
-                resp = client.post(f"{self.base_url}/api/chat", json=payload)
+                resp = client.post(f"{self.base_url}/api/chat", json=payload, headers=headers)
                 resp.raise_for_status()
                 data = resp.json()
         except httpx.ConnectError as e:
@@ -209,6 +212,11 @@ def create_reasoning_provider() -> ReasoningProvider:
         "Unsupported KARL_TWIN_PROVIDER={!r}. Use 'ollama' for free local LLM "
         "or 'anthropic' for Claude.".format(provider)
     )
+
+
+def _ollama_headers(api_key: str | None) -> dict[str, str]:
+    key = (api_key or "").strip()
+    return {"Authorization": f"Bearer {key}"} if key else {}
 
 
 def _env_float(name: str, default: float) -> float:

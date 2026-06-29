@@ -102,3 +102,48 @@ def test_doctor_fails_when_ollama_generation_fails(monkeypatch, capsys, tmp_path
     assert rc == 1
     out = capsys.readouterr().out
     assert "FAIL ollama_model_generates" in out
+
+
+def test_doctor_sends_ollama_cloud_bearer_key(monkeypatch, capsys, tmp_path):
+    calls = []
+
+    class TagsResponse:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"models": [{"name": "cloud-model"}]}
+
+    class ChatResponse:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"message": {"content": "OK"}}
+
+    def fake_get(url, **kwargs):
+        calls.append(("get", url, kwargs.get("headers")))
+        return TagsResponse()
+
+    def fake_post(url, **kwargs):
+        calls.append(("post", url, kwargs.get("headers")))
+        return ChatResponse()
+
+    monkeypatch.setenv("KARL_TWIN_PROVIDER", "ollama")
+    monkeypatch.setenv("OLLAMA_BASE_URL", "https://ollama.com")
+    monkeypatch.setenv("OLLAMA_MODEL", "cloud-model")
+    monkeypatch.setenv("OLLAMA_API_KEY", "cloud-key")
+    (tmp_path / ".env").write_text("KARL_TWIN_PROVIDER=ollama\n", encoding="utf-8")
+    monkeypatch.setattr(admin_module, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr("karl_twin.admin.__main__.httpx.get", fake_get)
+    monkeypatch.setattr("karl_twin.admin.__main__.httpx.post", fake_post)
+
+    rc = admin_main(["doctor"])
+
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "OK   ollama_api_key_configured" in out
+    assert calls == [
+        ("get", "https://ollama.com/api/tags", {"Authorization": "Bearer cloud-key"}),
+        ("post", "https://ollama.com/api/chat", {"Authorization": "Bearer cloud-key"}),
+    ]

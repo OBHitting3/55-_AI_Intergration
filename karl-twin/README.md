@@ -117,6 +117,22 @@ Run a setup check before the first natural-language run:
 python -m karl_twin.admin doctor
 ```
 
+## Ollama Cloud mode
+
+Karl can also use Ollama's hosted API when a local machine cannot run the
+model. Create an API key at `https://ollama.com/settings/keys`, then set:
+
+```bash
+KARL_TWIN_PROVIDER=ollama
+OLLAMA_BASE_URL=https://ollama.com
+OLLAMA_API_KEY=<your key>
+OLLAMA_MODEL=gpt-oss:120b
+```
+
+Use `python -m karl_twin.admin doctor` to verify the key, model, and generation
+before the first natural-language run. Local Ollama at `127.0.0.1:11434` does
+not need `OLLAMA_API_KEY`.
+
 ## Voice mode
 
 ```powershell

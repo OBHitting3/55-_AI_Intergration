@@ -75,7 +75,8 @@ def cmd_doctor(_args: argparse.Namespace) -> int:
     if provider in {"ollama", "local"}:
         base_url = os.environ.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
         model = os.environ.get("OLLAMA_MODEL", "qwen2.5:3b")
-        checks.extend(_ollama_checks(base_url, model))
+        api_key = os.environ.get("OLLAMA_API_KEY", "")
+        checks.extend(_ollama_checks(base_url, model, api_key))
 
     failures = 0
     print("Karl setup doctor")
@@ -86,13 +87,16 @@ def cmd_doctor(_args: argparse.Namespace) -> int:
     return 0 if failures == 0 else 1
 
 
-def _ollama_checks(base_url: str, model: str) -> list[tuple[str, bool, str]]:
+def _ollama_checks(base_url: str, model: str, api_key: str = "") -> list[tuple[str, bool, str]]:
     checks: list[tuple[str, bool, str]] = [
         ("ollama_base_url", bool(base_url), base_url or "<empty>"),
         ("ollama_model_configured", bool(model), model or "<empty>"),
     ]
+    headers = _ollama_headers(api_key)
+    if _is_ollama_cloud(base_url):
+        checks.append(("ollama_api_key_configured", bool((api_key or "").strip()), "OLLAMA_API_KEY"))
     try:
-        resp = httpx.get(f"{base_url}/api/tags", timeout=5.0)
+        resp = httpx.get(f"{base_url}/api/tags", headers=headers, timeout=5.0)
         resp.raise_for_status()
         models = [item.get("name") for item in resp.json().get("models", [])]
     except Exception as e:
@@ -103,11 +107,11 @@ def _ollama_checks(base_url: str, model: str) -> list[tuple[str, bool, str]]:
     model_downloaded = model in models
     checks.append(("ollama_model_downloaded", model_downloaded, f"{model}; available={models}"))
     if model_downloaded:
-        checks.append(_ollama_generate_check(base_url, model))
+        checks.append(_ollama_generate_check(base_url, model, headers=headers))
     return checks
 
 
-def _ollama_generate_check(base_url: str, model: str) -> tuple[str, bool, str]:
+def _ollama_generate_check(base_url: str, model: str, *, headers: dict[str, str] | None = None) -> tuple[str, bool, str]:
     payload = {
         "model": model,
         "messages": [{"role": "user", "content": "Reply with OK."}],
@@ -115,12 +119,21 @@ def _ollama_generate_check(base_url: str, model: str) -> tuple[str, bool, str]:
         "options": {"num_predict": 8},
     }
     try:
-        resp = httpx.post(f"{base_url}/api/chat", json=payload, timeout=30.0)
+        resp = httpx.post(f"{base_url}/api/chat", json=payload, headers=headers or {}, timeout=30.0)
         resp.raise_for_status()
         content = str((resp.json().get("message") or {}).get("content") or "").strip()
     except Exception as e:
         return ("ollama_model_generates", False, f"{type(e).__name__}: {e}")
     return ("ollama_model_generates", bool(content), content or "<empty response>")
+
+
+def _ollama_headers(api_key: str | None) -> dict[str, str]:
+    key = (api_key or "").strip()
+    return {"Authorization": f"Bearer {key}"} if key else {}
+
+
+def _is_ollama_cloud(base_url: str) -> bool:
+    return base_url.rstrip("/").lower() == "https://ollama.com"
 
 
 def cmd_generate_env(args: argparse.Namespace) -> int:
