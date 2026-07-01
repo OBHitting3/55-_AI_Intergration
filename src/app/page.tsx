@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ConfigValidateButton from "@/components/bridge/config-validate-button";
 import HealthStatus from "@/components/bridge/health-status";
 import SyncHistory from "@/components/bridge/sync-history";
@@ -26,6 +27,12 @@ export default function DashboardPage() {
         <p className="text-gray-400 text-sm mt-1">
           Iron Forge Studios — MCP-only architecture
         </p>
+        <Link
+          href="/life"
+          className="inline-block mt-3 text-sm text-blue-400 hover:text-blue-300"
+        >
+          Life OS →
+        </Link>
       </header>
 
       <section className="space-y-4">
