@@ -9,6 +9,7 @@ const SESSION_VALUE = "authenticated";
 const PUBLIC_PREFIXES = [
   "/api/health",
   "/api/webhooks",
+  "/api/life",
   "/_next",
   "/favicon.ico",
 ];

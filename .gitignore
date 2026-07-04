@@ -40,3 +40,5 @@ next-env.d.ts
 src/data/sync-state.json
 src/data/audit-log.json
 src/data/config-manifest.json
+src/data/life-context.json
+src/data/life-briefings.json
