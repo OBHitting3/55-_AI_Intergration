@@ -1,0 +1,128 @@
+[
+  {
+    "id": "briefing-1783256549089",
+    "generatedAt": "2026-07-05T13:05:00.000Z",
+    "greeting": "Good day, Karl. Today is Sunday, July 5, 2026.",
+    "summary": "3 active goal(s) · 4 open issue(s) · 1 overdue project(s)",
+    "sections": [
+      {
+        "title": "North star",
+        "items": [
+          "Build sovereign AI systems that compound leverage — karl-twin, AI Bridge Sync, and income streams — without sacrificing health or relationships."
+        ]
+      },
+      {
+        "title": "Active goals",
+        "items": [
+          "karl-twin v0.1: voice → approve → execute on Pixel",
+          "AI Bridge Sync: single source of truth for LLM context",
+          "Set up KRLX workstation (RTX 5090) (target 2026-05-25)"
+        ]
+      },
+      {
+        "title": "Today's routines",
+        "items": [
+          "08:00 — Morning briefing + top 3 focus",
+          "13:00 — Midday life check (cron agent)",
+          "21:00 — Evening shutdown: log wins + set tomorrow"
+        ]
+      },
+      {
+        "title": "Work queue",
+        "items": [
+          "SET-1: Get familiar with Linear [No priority]",
+          "SET-2: Set up your teams [No priority]",
+          "SET-3: Connect your tools [No priority]",
+          "SET-4: Import your data [No priority]"
+        ]
+      },
+      {
+        "title": "Projects",
+        "items": [
+          "Set up KRLX (Backlog) → 2026-05-25 ⚠️ overdue"
+        ]
+      },
+      {
+        "title": "Agent notes",
+        "items": [
+          "Life OS restored on 2e94 branch from 77a4.",
+          "0 issues assigned to me; 4 SET onboarding issues still open.",
+          "KRLX project overdue ~41 days (target 2026-05-25)."
+        ]
+      }
+    ],
+    "topActions": [
+      "Review or reschedule: Set up KRLX",
+      "Triage 4 open issue(s): Get familiar with Linear; Set up your teams; Connect your tools",
+      "#1: Ship karl-twin approval loop end-to-end",
+      "#2: Keep AI Bridge Sync context current across LLMs",
+      "#3: Move KRLX setup forward (RTX 5090 workstation)"
+    ],
+    "risks": [
+      "Project \"Set up KRLX\" is past target date (2026-05-25)",
+      "Goal overdue: Set up KRLX workstation (RTX 5090) (target 2026-05-25)"
+    ]
+  },
+  {
+    "id": "briefing-1783083918112",
+    "generatedAt": "2026-07-03T13:02:07.482Z",
+    "greeting": "Good day, Karl. Today is Friday, July 3, 2026.",
+    "summary": "3 active goal(s) · 4 open issue(s) · 1 overdue project(s)",
+    "sections": [
+      {
+        "title": "North star",
+        "items": [
+          "Build sovereign AI systems that compound leverage — karl-twin, AI Bridge Sync, and income streams — without sacrificing health or relationships."
+        ]
+      },
+      {
+        "title": "Active goals",
+        "items": [
+          "karl-twin v0.1: voice → approve → execute on Pixel",
+          "AI Bridge Sync: single source of truth for LLM context",
+          "Set up KRLX workstation (RTX 5090) (target 2026-05-25)"
+        ]
+      },
+      {
+        "title": "Today's routines",
+        "items": [
+          "08:00 — Morning briefing + top 3 focus",
+          "13:00 — Midday life check (cron agent)",
+          "21:00 — Evening shutdown: log wins + set tomorrow"
+        ]
+      },
+      {
+        "title": "Work queue",
+        "items": [
+          "SET-1: Get familiar with Linear [No priority]",
+          "SET-2: Set up your teams [No priority]",
+          "SET-3: Connect your tools [No priority]",
+          "SET-4: Import your data [No priority]"
+        ]
+      },
+      {
+        "title": "Projects",
+        "items": [
+          "Set up KRLX (Backlog) → 2026-05-25 ⚠️ overdue"
+        ]
+      },
+      {
+        "title": "Agent notes",
+        "items": [
+          "Daily cron run 2026-07-03 — Life OS restored on 78d7 branch from 5132."
+        ]
+      }
+    ],
+    "topActions": [
+      "Review or reschedule: Set up KRLX",
+      "Triage 4 open issue(s): Get familiar with Linear; Set up your teams; Connect your tools",
+      "#1: Ship karl-twin approval loop end-to-end",
+      "#2: Keep AI Bridge Sync context current across LLMs",
+      "#3: Move KRLX setup forward (RTX 5090 workstation)"
+    ],
+    "risks": [
+      "Project \"Set up KRLX\" is past target date (2026-05-25)",
+      "Goal overdue: Set up KRLX workstation (RTX 5090) (target 2026-05-25)"
+    ]
+  }
+]
